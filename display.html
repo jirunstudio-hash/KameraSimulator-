@@ -8,48 +8,19 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #0b0b0e; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
 
-        /* BINGKAI HP DISPLAY */
         .phone-screen { 
-            height: 100vh; 
-            width: 100vw;
-            max-width: 420px; 
-            max-height: 840px;
-            background: #000; 
-            position: relative; 
-            overflow: hidden; 
-            display: flex; 
-            justify-content: center;
-            align-items: flex-start;
-            padding: 10px 10px 0 10px; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            border: 2px solid #222;
-            border-radius: 20px;
+            height: 100vh; width: 100vw; max-width: 420px; max-height: 840px;
+            background: #000; position: relative; overflow: hidden; display: flex; 
+            justify-content: center; align-items: flex-start; padding: 10px 10px 0 10px; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
-        /* LAYOUT UTAMA: MENTOK ATAS */
-        .live-layout { 
-            display: flex; 
-            gap: 8px; 
-            width: 100%; 
-            max-width: 400px;
-            z-index: 10; 
-            align-items: stretch; 
-            margin-top: 0px; 
-        }
+        .live-layout { display: flex; gap: 8px; width: 100%; max-width: 400px; z-index: 10; align-items: stretch; margin-top: 0px; }
 
-        /* KOTAK HOST (KIRI) */
         .host-box { 
-            flex: 1; 
-            height: auto; 
-            background: #16161c; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            position: relative; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            flex: 1; height: auto; background: #16161c; border-radius: 12px; overflow: hidden; 
+            position: relative; display: flex; justify-content: center; align-items: center; 
+            border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
         .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; }
@@ -58,128 +29,54 @@
         .blue-host-badge { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-size: 0.5rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(0,242,254,0.3); }
 
         .host-bottom-pill { 
-            position: absolute; 
-            bottom: 8px; 
-            left: 8px; 
-            max-width: calc(100% - 16px);
-            background: rgba(0, 0, 0, 0.65); 
-            backdrop-filter: blur(6px); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 8px; 
-            padding: 4px 10px; 
-            z-index: 10; 
+            position: absolute; bottom: 8px; left: 8px; max-width: calc(100% - 16px);
+            background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(6px); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 10px; z-index: 10; 
         }
-        .host-bottom-text { 
-            font-size: 0.55rem; 
-            color: #fff; 
-            font-weight: 600; 
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .host-bottom-text { font-size: 0.55rem; color: #fff; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* GRID 8 KOTAK KOMAL (KANAN) */
-        .komal-grid { 
-            width: 190px; 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            grid-template-rows: repeat(4, 1fr); 
-            gap: 6px; 
-            flex-shrink: 0;
-        }
+        .komal-grid { width: 190px; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; flex-shrink: 0; }
 
         .slot-box { 
-            width: 100%; 
-            aspect-ratio: 1 / 1; 
-            background: #16161c; 
-            border-radius: 10px; 
-            position: relative; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
+            width: 100%; aspect-ratio: 1 / 1; background: #16161c; border-radius: 10px; 
+            position: relative; overflow: hidden; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.08); 
         }
         
-        .slot-media { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            display: none; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-        }
+        .slot-media { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; }
+        .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 2; border: 2px solid rgba(255, 255, 255, 0.2); }
 
-        .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; }
-        .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; z-index: 2; }
+        .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; }
 
-        /* COIN BADGE top-left */
         .slot-coin-badge { 
-            position: absolute; 
-            top: 4px; 
-            left: 4px; 
-            display: flex; 
-            align-items: center; 
-            gap: 2px; 
-            background: rgba(0, 0, 0, 0.6); 
-            backdrop-filter: blur(4px);
-            padding: 1px 5px; 
-            border-radius: 6px; 
-            z-index: 6; 
-            border: 1px solid rgba(255,255,255,0.1);
+            position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; 
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 2px 5px; 
+            border-radius: 8px; z-index: 6; border: 1px solid rgba(255,255,255,0.10);
         }
-        .coin-icon { width: 8px; height: 8px; background: #fe2c55; border-radius: 50%; box-shadow: 0 0 4px #fe2c55; }
+        .star-icon-svg { width: 9px; height: 9px; fill: #fff; }
         .coin-count { font-size: 0.45rem; color: #fff; font-weight: 700; }
 
-        /* NAMA & MIC BAR bottom */
         .slot-bottom-bar { 
-            position: absolute; 
-            bottom: 4px; 
-            left: 4px; 
-            right: 4px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            z-index: 5; 
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            padding: 2px 4px;
-            border-radius: 6px;
+            position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; 
+            align-items: center; justify-content: space-between; z-index: 5; 
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 5px; border-radius: 6px;
         }
-        .slot-name-pill { color: #fff; font-size: 0.45rem; font-weight: 500; max-width: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mic-icon-svg { width: 9px; height: 9px; fill: #00f2fe; }
+        .slot-name-pill { color: #fff; font-size: 0.45rem; font-weight: 500; max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .mic-container { position: relative; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; }
+        .mic-icon-svg { width: 9px; height: 9px; fill: #fff; }
+        .mic-mute-line { position: absolute; width: 12px; height: 1.5px; background-color: #ff3b30; transform: rotate(-45deg); display: block; }
 
-        /* GIFT OVERLAY FULL LAYAR */
-        .gift-overlay { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            z-index: 30; 
-            pointer-events: none; 
-            display: none; 
-            background: transparent;
-        }
+        .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; display: none; background: transparent; }
         #giftVideo { display: none; }
-        #giftCanvas { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
     </style>
 </head>
 <body>
 
     <div class="phone-screen">
         <div class="live-layout">
-            <!-- HOST BOX -->
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
@@ -187,23 +84,27 @@
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
 
-            <!-- 8 KOMAL GRID -->
             <div class="komal-grid" id="komalGrid">
                 <script>
                     for(let i = 1; i <= 8; i++) {
                         document.write(`
                             <div class="slot-box" id="slot-${i}">
                                 <div class="slot-coin-badge" id="coin-badge-${i}" style="display:none;">
-                                    <div class="coin-icon"></div>
+                                    <svg class="star-icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                                     <span class="coin-count" id="coincount-slot-${i}">0</span>
                                 </div>
                                 <span class="slot-icon" id="icon-${i}">+</span>
                                 <span class="slot-req" id="req-${i}">Request</span>
-                                <img id="img-slot-${i}" class="slot-media">
+                                
+                                <img id="img-slot-${i}" class="slot-circle-img">
                                 <video id="vid-slot-${i}" class="slot-media" loop playsinline muted></video>
+                                
                                 <div class="slot-bottom-bar" id="bottombar-slot-${i}" style="display:none;">
                                     <div class="slot-name-pill"><span id="nametext-slot-${i}">Slot ${i}</span></div>
-                                    <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
+                                    <div class="mic-container">
+                                        <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
+                                        <div class="mic-mute-line" id="micline-slot-${i}"></div>
+                                    </div>
                                 </div>
                             </div>
                         `);
@@ -213,7 +114,6 @@
         </div>
 
         <div class="gift-overlay" id="giftOverlayContainer">
-            <!-- Atribut muted dihapus agar audio video gift bisa keluar -->
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
         </div>
@@ -283,6 +183,14 @@
                 }
             }
             else if (data.type === 'PLAY_GIFT') {
+                // Update semua poin slot yang aktif menjadi 4499K saat gift diputar
+                for (let i = 1; i <= 8; i++) {
+                    const coincountElem = document.getElementById(`coincount-slot-${i}`);
+                    const coinBadge = document.getElementById(`coin-badge-${i}`);
+                    if (coinBadge.style.display === 'flex') {
+                        coincountElem.innerText = '4499K';
+                    }
+                }
                 playGiftVideo(data.src);
             }
         };
@@ -316,7 +224,6 @@
                             const pixels = frame.data;
                             for (let i = 0; i < pixels.length; i += 4) {
                                 let r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-                                // Pembersihan background hijau (greenscreen)
                                 if (g > 60 && g > r * 1.2 && g > b * 1.2) {
                                     pixels[i + 3] = 0;
                                 }
