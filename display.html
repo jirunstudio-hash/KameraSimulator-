@@ -22,8 +22,8 @@
             position: relative; display: flex; justify-content: center; align-items: center; 
             border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
-        .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; }
+        .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
+        .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
         .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
         .blue-host-badge { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-size: 0.5rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(0,242,254,0.3); }
@@ -43,8 +43,8 @@
             align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.08); 
         }
         
-        .slot-media { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; }
-        .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 2; border: 2px solid rgba(255, 255, 255, 0.2); }
+        .slot-media { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 2; }
+        .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 3; border: 2px solid rgba(255, 255, 255, 0.2); }
 
         .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; z-index: 2; }
         .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; }
@@ -67,7 +67,9 @@
             background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
         }
         .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .slot-plus-icon { color: #fff; font-size: 0.45rem; font-weight: bold; flex-shrink: 0; }
+        
+        /* Ikon Plus dipertebal menggunakan -webkit-text-stroke dan font-weight 900 */
+        .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; -webkit-text-stroke: 0.4px #fff; flex-shrink: 0; }
         
         .mic-container { 
             position: absolute; bottom: 4px; right: 4px; z-index: 5;
@@ -89,7 +91,7 @@
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
-                <video id="hostVideo" class="host-video" loop autoplay muted style="display:none;"></video>
+                <video id="hostVideo" class="host-video" loop autoplay playsinline></video>
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
 
@@ -134,15 +136,25 @@
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
-        // Menyimpan akumulasi poin setiap slot (default 0)
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
+
+        // Fungsi pembantu untuk membersihkan string username (@) agar murni menjadi Nama Panggilan / Nickname TikTok target
+        function cleanTikTokNickname(rawName) {
+            if (!rawName) return '';
+            let cleaned = rawName.trim();
+            // Jika diawali dengan '@', hilangkan agar yang tampil adalah Nama Tampilan (Nickname) asli target
+            if (cleaned.startsWith('@')) {
+                cleaned = cleaned.substring(1);
+            }
+            return cleaned;
+        }
 
         channel.onmessage = (event) => {
             const data = event.data;
 
             if (data.type === 'UPDATE_HOST_LABEL') {
-                document.getElementById('hostBottomText').innerText = data.label || 'Nama';
+                document.getElementById('hostBottomText').innerText = cleanTikTokNickname(data.label) || 'Nama';
             } 
             else if (data.type === 'UPDATE_HOST_VIDEO') {
                 const videoElem = document.getElementById('hostVideo');
@@ -150,8 +162,10 @@
                 videoElem.src = data.src;
                 videoElem.style.display = 'block';
                 placeholder.style.display = 'none';
-                videoElem.muted = false; // Suara aktif
-                videoElem.play().catch(e => {
+                
+                // Paksa unmute & mainkan video host dengan penanganan kebijakan browser
+                videoElem.muted = false;
+                videoElem.play().catch(() => {
                     videoElem.muted = true;
                     videoElem.play();
                 });
@@ -186,8 +200,9 @@
                 slotPoints[slotNum] = initialPoin || 0;
                 coincountElem.innerText = formatPoin(slotPoints[slotNum]);
 
-                if (nameInput) {
-                    nameText.innerText = nameInput;
+                const formattedNickname = cleanTikTokNickname(nameInput);
+                if (formattedNickname) {
+                    nameText.innerText = formattedNickname;
                     namePill.style.display = 'flex';
                     micContainer.style.display = 'flex';
                 } else {
@@ -204,8 +219,10 @@
                     } else if (mediaType === 'video') {
                         vidElem.src = mediaSrc;
                         vidElem.style.display = 'block';
-                        vidElem.muted = false; // Suara video slot aktif
-                        vidElem.play().catch(e => {
+                        
+                        // Paksa aktifkan suara video slot & jalankan
+                        vidElem.muted = false;
+                        vidElem.play().catch(() => {
                             vidElem.muted = true;
                             vidElem.play();
                         });
@@ -213,7 +230,6 @@
                 }
             }
             else if (data.type === 'PLAY_GIFT') {
-                // Setiap kali gift diputar, akumulasikan poin 44.999K ke slot yang aktif
                 for (let i = 1; i <= 8; i++) {
                     const coinBadge = document.getElementById(`coin-badge-${i}`);
                     if (coinBadge.style.display === 'flex') {
@@ -245,7 +261,7 @@
             giftVideo.src = '';
             giftVideo.src = src;
             giftVideo.load();
-            giftVideo.muted = false; // Suara video gift aktif
+            giftVideo.muted = false; // Aktifkan suara efek gift
 
             giftVideo.play().then(() => {
                 function renderFrame() {
@@ -276,7 +292,7 @@
                     requestAnimationFrame(renderFrame);
                 }
                 requestAnimationFrame(renderFrame);
-            }).catch(err => {
+            }).catch(() => {
                 giftVideo.muted = true;
                 giftVideo.play();
             });
