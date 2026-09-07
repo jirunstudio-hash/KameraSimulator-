@@ -5,68 +5,197 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display Studio - TikTok Live</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #050505; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0b0b0e; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
 
+        /* BINGKAI HP DISPLAY */
         .phone-screen { 
-            height: 95vh; aspect-ratio: 9 / 16; background: #000; 
-            border: 2px solid #333; border-radius: 12px; position: relative; 
-            overflow: hidden; display: flex; flex-direction: column; padding: 10px; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            height: 100vh; 
+            width: 100vw;
+            max-width: 420px; 
+            max-height: 840px;
+            background: #000; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px 10px 0 10px; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            border: 2px solid #222;
+            border-radius: 20px;
         }
 
-        .live-layout { display: flex; gap: 6px; width: 100%; height: 100%; z-index: 10; }
+        /* LAYOUT UTAMA: MENTOK ATAS */
+        .live-layout { 
+            display: flex; 
+            gap: 8px; 
+            width: 100%; 
+            max-width: 400px;
+            z-index: 10; 
+            align-items: stretch; /* Mengubah flex-start menjadi stretch agar tinggi host mengikuti grid secara fleksibel */
+            margin-top: 0px; 
+        }
 
-        /* KOTAK HOST */
+        /* KOTAK HOST (KIRI) - Tinggi otomatis menyesuaikan layout flex */
         .host-box { 
-            flex: 1 1 0; min-width: 0; background: #1f1f1f; border-radius: 8px; 
-            overflow: hidden; position: relative; display: flex; justify-content: center; 
-            align-items: center; border: 1.5px solid rgba(255, 255, 255, 0.4); 
+            flex: 1; 
+            height: auto; /* Menggunakan auto agar stretch flexbox bekerja sempurna tanpa bentrok */
+            background: #16161c; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
         .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .host-placeholder { color: #888; font-size: 0.85rem; font-weight: bold; text-align: center; }
+        .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; }
 
-        .host-top-pill { position: absolute; top: 6px; left: 6px; z-index: 10; }
-        .blue-host-badge { background: #00d2ff; color: #000; font-size: 0.45rem; font-weight: 800; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; }
+        .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
+        .blue-host-badge { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-size: 0.5rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(0,242,254,0.3); }
 
-        .host-bottom-pill { position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.55); border-radius: 6px; padding: 2px 6px; z-index: 10; }
-        .host-bottom-text { font-size: 0.42rem; color: #fff; font-weight: 500; }
+        .host-bottom-pill { 
+            position: absolute; 
+            bottom: 8px; 
+            left: 8px; 
+            max-width: calc(100% - 16px);
+            background: rgba(0, 0, 0, 0.65); 
+            backdrop-filter: blur(6px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; 
+            padding: 4px 10px; 
+            z-index: 10; 
+        }
+        .host-bottom-text { 
+            font-size: 0.55rem; 
+            color: #fff; 
+            font-weight: 600; 
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-        /* KOMAL GRID */
-        .komal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: 45%; flex-shrink: 0; }
-        .slot-box { width: 100%; aspect-ratio: 1 / 1; background: rgba(255, 255, 255, 0.08); border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px solid rgba(255, 255, 255, 0.3); }
+        /* GRID 8 KOTAK KOMAL (KANAN) */
+        .komal-grid { 
+            width: 190px; 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            grid-template-rows: repeat(4, 1fr); 
+            gap: 6px; 
+            flex-shrink: 0;
+        }
+
+        .slot-box { 
+            width: 100%; 
+            aspect-ratio: 1 / 1; 
+            background: #16161c; 
+            border-radius: 10px; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
         
-        .slot-media { width: 70%; height: 70%; object-fit: cover; border-radius: 50%; display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); }
-        .slot-icon { color: #aaa; font-size: 1rem; }
-        .slot-req { color: #aaa; font-size: 0.5rem; }
+        .slot-media { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: none; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+        }
 
-        .slot-coin-badge { position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; background: rgba(0,0,0,0.45); padding: 1px 4px; border-radius: 10px; z-index: 6; }
-        .coin-icon { width: 9px; height: 9px; background: #00d2ff; border-radius: 50%; }
-        .coin-count { font-size: 0.42rem; color: #fff; font-weight: 600; }
+        .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; }
+        .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .slot-bottom-bar { position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; align-items: center; justify-content: space-between; z-index: 5; }
-        .slot-name-pill { background: rgba(0,0,0,0.55); color: #fff; font-size: 0.42rem; padding: 1px 4px; border-radius: 8px; }
-        .mic-icon-svg { width: 10px; height: 10px; fill: #fff; }
+        /* COIN BADGE top-left */
+        .slot-coin-badge { 
+            position: absolute; 
+            top: 4px; 
+            left: 4px; 
+            display: flex; 
+            align-items: center; 
+            gap: 2px; 
+            background: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(4px);
+            padding: 1px 5px; 
+            border-radius: 6px; 
+            z-index: 6; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .coin-icon { width: 8px; height: 8px; background: #fe2c55; border-radius: 50%; box-shadow: 0 0 4px #fe2c55; }
+        .coin-count { font-size: 0.45rem; color: #fff; font-weight: 700; }
 
-        /* GIFT OVERLAY */
-        .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; }
-        #giftCanvas { width: 100%; height: 100%; object-fit: cover; display: none; }
+        /* NAMA & MIC BAR bottom */
+        .slot-bottom-bar { 
+            position: absolute; 
+            bottom: 4px; 
+            left: 4px; 
+            right: 4px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            z-index: 5; 
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            padding: 2px 4px;
+            border-radius: 6px;
+        }
+        .slot-name-pill { color: #fff; font-size: 0.45rem; font-weight: 500; max-width: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mic-icon-svg { width: 9px; height: 9px; fill: #00f2fe; }
+
+        /* GIFT OVERLAY FULL LAYAR */
+        .gift-overlay { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 30; 
+            pointer-events: none; 
+            display: none; 
+            background: transparent;
+        }
+        #giftVideo { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #giftCanvas { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
     </style>
 </head>
 <body>
 
     <div class="phone-screen">
         <div class="live-layout">
-            <!-- HOST -->
-            <div class="host-box">
+            <!-- HOST BOX -->
+            <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
                 <video id="hostVideo" class="host-video" loop autoplay muted style="display:none;"></video>
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
 
-            <!-- KOMAL -->
-            <div class="komal-grid">
+            <!-- 8 KOMAL GRID -->
+            <div class="komal-grid" id="komalGrid">
                 <script>
                     for(let i = 1; i <= 8; i++) {
                         document.write(`
@@ -81,7 +210,7 @@
                                 <video id="vid-slot-${i}" class="slot-media" loop playsinline muted></video>
                                 <div class="slot-bottom-bar" id="bottombar-slot-${i}" style="display:none;">
                                     <div class="slot-name-pill"><span id="nametext-slot-${i}">Slot ${i}</span></div>
-                                    <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" opacity="0.3"/><path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-3 0c0 .5-.08.98-.23 1.43l4.09 4.09 1.41-1.41L3.51 2.27 2.1 3.69l4.18 4.18C6.09 8.44 6 9.21 6 10v1h2v-1c0-.28.03-.55.08-.82l2.1 2.1C10.06 11.53 10 11.76 10 12c0 1.1.9 2 2 2 .24 0 .47-.06.72-.18l3.11 3.11C14.66 17.5 13.38 18 12 18c-3.31 0-6-2.69-6-6H4c0 4.07 3.06 7.43 7 7.93V22h2v-2.07c1.47-.19 2.84-.77 3.99-1.63l2.32 2.32 1.41-1.41L3.51 2.27z"/></svg>
+                                    <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
                                 </div>
                             </div>
                         `);
@@ -90,13 +219,14 @@
             </div>
         </div>
 
-        <div class="gift-overlay">
+        <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" playsinline style="display:none;"></video>
             <canvas id="giftCanvas"></canvas>
         </div>
     </div>
 
     <script>
+        // Fungsi sinkronisasi tinggi dihapus karena bentrok dengan flex stretch CSS
         const channel = new BroadcastChannel('tiktok_live_channel');
 
         channel.onmessage = (event) => {
@@ -165,22 +295,23 @@
         };
 
         function playGiftVideo(src) {
+            const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
             const canvas = document.getElementById('giftCanvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
             giftVideo.src = src;
-            canvas.style.display = 'block';
+            overlayContainer.style.display = 'block';
             giftVideo.currentTime = 0;
             giftVideo.play();
 
             function renderFrame() {
                 if (giftVideo.paused || giftVideo.ended) {
-                    canvas.style.display = 'none';
+                    overlayContainer.style.display = 'none';
                     return;
                 }
-                canvas.width = giftVideo.videoWidth || 360;
-                canvas.height = giftVideo.videoHeight || 640;
+                canvas.width = giftVideo.videoWidth || 420;
+                canvas.height = giftVideo.videoHeight || 840;
                 ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
 
                 const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
