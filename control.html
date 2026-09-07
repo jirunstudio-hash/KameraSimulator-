@@ -3,174 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Panel - TikTok Live</title>
+    <title>TikTok Live - Control Panel</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #121212; color: #fff; padding: 15px; }
-        
-        .control-panel { 
-            background: #1e1e1e; padding: 15px; border-radius: 10px; 
-            display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .panel-title { color: #ff0050; font-size: 1.1rem; font-weight: bold; border-bottom: 2px solid #ff0050; padding-bottom: 5px; }
-        .section { background: #2a2a2a; padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
-        .section h3 { font-size: 0.9rem; color: #ff0050; }
-        
-        .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .input-group { display: flex; align-items: center; gap: 6px; }
-        label { font-size: 0.8rem; color: #aaa; }
-        input[type="text"], select { padding: 6px; border-radius: 5px; border: 1px solid #444; background: #121212; color: #fff; font-size: 0.8rem; }
-        button { padding: 8px 14px; border-radius: 5px; background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #121216; color: #fff; padding: 20px; max-width: 600px; margin: 0 auto; }
+        h2 { font-size: 1.2rem; margin-bottom: 15px; color: #00f2fe; }
+        .card { background: #1e1e24; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px 12px; background: #2a2a32; border: 1px solid #444; color: #fff; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; }
+        button { background: #007aff; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; margin-right: 5px; margin-top: 5px; }
         button:hover { opacity: 0.9; }
-        button.btn-pink { background: #ff0050; }
+        button.danger { background: #ff3b30; }
+        button.secondary { background: #5856d6; }
     </style>
 </head>
 <body>
 
-    <div class="control-panel">
-        <div class="panel-title">CONTROL PANEL (WEB A)</div>
-        
-        <!-- SECTION 1: HOST -->
-        <div class="section">
-            <h3>1. Host Video</h3>
-            <div class="row">
-                <input type="file" id="videoInput" accept="video/*">
-                <button onclick="sendHostVideo()">Putar Video File</button>
-            </div>
-        </div>
+    <h2>TikTok Live Control Panel</h2>
 
-        <!-- SECTION 2: LABEL HOST -->
-        <div class="section">
-            <h3>2. Label Host</h3>
-            <div class="row">
-                <div class="input-group">
-                    <label>Nama Bawah:</label>
-                    <input type="text" id="hostBottomInput" value="Faz Gading" oninput="sendHostLabel()">
-                </div>
-            </div>
-        </div>
+    <div class="card">
+        <label>Nama Host</label>
+        <input type="text" id="hostNameInput" placeholder="Contoh: Faz Gading">
+        <label>URL Video Host (MP4)</label>
+        <input type="text" id="hostVideoInput" placeholder="Link video host...">
+        <button onclick="updateHost()">Terapkan Host</button>
+    </div>
 
-        <!-- SECTION 3: KOMAL -->
-        <div class="section">
-            <h3>3. Komal (8 Slot)</h3>
-            <div class="row">
-                <div class="input-group">
-                    <label>Slot:</label>
-                    <select id="slotSelect">
-                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                        <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Mode:</label>
-                    <select id="mediaTypeSelect">
-                        <option value="user">User TikTok</option>
-                        <option value="video">Video (Bulat)</option>
-                        <option value="empty">Kosongkan</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Username:</label>
-                    <input type="text" id="guestName" placeholder="Ketik username..." style="width: 120px;">
-                </div>
-                <div class="input-group" id="videoFileInputGroup" style="display:none;">
-                    <input type="file" id="guestMedia" accept="video/*">
-                </div>
-                <button onclick="sendSlotUpdate()">Pasang Ke Komal</button>
-            </div>
-        </div>
+    <div class="card">
+        <h3>Pengaturan Slot (1 - 8)</h3>
+        <label>Pilih Slot:</label>
+        <select id="selectSlotNum">
+            <option value="1">Slot 1</option>
+            <option value="2">Slot 2</option>
+            <option value="3">Slot 3</option>
+            <option value="4">Slot 4</option>
+            <option value="5">Slot 5</option>
+            <option value="6">Slot 6</option>
+            <option value="7">Slot 7</option>
+            <option value="8">Slot 8</option>
+        </select>
 
-        <!-- SECTION 4: GIFT -->
-        <div class="section">
-            <h3>4. Gift Overlay</h3>
-            <div class="row">
-                <input type="file" id="giftVideoInput" accept="video/*">
-                <button class="btn-pink" onclick="sendGift()">Mainkan Gift</button>
-            </div>
-        </div>
+        <label>Nama TikTok Target / Penonton</label>
+        <input type="text" id="targetNameInput" placeholder="Contoh: @BudiOfficial atau Budi">
+
+        <label>Tipe Media</label>
+        <select id="mediaTypeSelect">
+            <option value="empty">Kosong (Default)</option>
+            <option value="image">Foto Profil (Lingkar)</option>
+            <option value="video">Video Media</option>
+        </select>
+
+        <label>URL Media (Foto/Video Link)</label>
+        <input type="text" id="mediaUrlInput" placeholder="https://...">
+
+        <label>Target / Poin Awal</label>
+        <input type="number" id="poinInput" value="0">
+
+        <button onclick="applySlot()">Simpan / Update Slot</button>
+        <button class="secondary" onclick="clearMediaOnly()">Hapus Foto/Video Saja</button>
+        <button class="danger" onclick="clearSlotTotal()">Hapus / Kosongkan Slot</button>
+    </div>
+
+    <div class="card">
+        <h3>Kirim Gift & Tambah Poin</h3>
+        <label>Pilih Slot Tujuan Poin:</label>
+        <select id="giftTargetSlot">
+            <option value="1">Slot 1</option>
+            <option value="2">Slot 2</option>
+            <option value="3">Slot 3</option>
+            <option value="4">Slot 4</option>
+            <option value="5">Slot 5</option>
+            <option value="6">Slot 6</option>
+            <option value="7">Slot 7</option>
+            <option value="8">Slot 8</option>
+        </select>
+        <label>URL Video Gift (Green Screen/Transparan)</label>
+        <input type="text" id="giftVideoUrl" placeholder="Link video gift.mp4">
+        <label>Tambah Poin (Default 44999)</label>
+        <input type="number" id="giftIncrement" value="44999">
+        <button onclick="triggerGift()">Putar Gift & Tambah Poin</button>
     </div>
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
 
-        document.getElementById('mediaTypeSelect').addEventListener('change', function() {
-            const isVideo = this.value === 'video';
-            document.getElementById('videoFileInputGroup').style.display = isVideo ? 'flex' : 'none';
-        });
-
-        function sendHostLabel() {
-            const bottomVal = document.getElementById('hostBottomInput').value;
-            channel.postMessage({ type: 'UPDATE_HOST_LABEL', label: bottomVal });
+        function cleanName(raw) {
+            if(!raw) return '';
+            let val = raw.trim();
+            if(val.startsWith('@')) val = val.substring(1);
+            return val;
         }
 
-        function sendHostVideo() {
-            const fileInput = document.getElementById('videoInput');
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    channel.postMessage({ type: 'UPDATE_HOST_VIDEO', src: e.target.result });
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            }
+        function updateHost() {
+            const label = document.getElementById('hostNameInput').value;
+            const src = document.getElementById('hostVideoInput').value;
+            if(label) channel.postMessage({ type: 'UPDATE_HOST_LABEL', label });
+            if(src) channel.postMessage({ type: 'UPDATE_HOST_VIDEO', src });
         }
 
-        function sendSlotUpdate() {
-            const slotNum = document.getElementById('slotSelect').value;
+        function applySlot() {
+            const slotNum = document.getElementById('selectSlotNum').value;
+            const nameInput = cleanName(document.getElementById('targetNameInput').value);
             const mediaType = document.getElementById('mediaTypeSelect').value;
-            const username = document.getElementById('guestName').value.trim();
-            const mediaInput = document.getElementById('guestMedia');
+            const mediaSrc = document.getElementById('mediaUrlInput').value;
+            const initialPoin = parseInt(document.getElementById('poinInput').value) || 0;
 
-            if (mediaType === 'empty') {
-                channel.postMessage({ type: 'UPDATE_SLOT', slotNum, mediaType });
-                return;
-            }
-
-            if (mediaType === 'user') {
-                if (!username) {
-                    alert('Masukkan username TikTok terlebih dahulu!');
-                    return;
-                }
-                const profileImgSrc = `https://unavatar.io/tiktok/${username}`;
-                
-                channel.postMessage({
-                    type: 'UPDATE_SLOT',
-                    slotNum,
-                    mediaType: 'image',
-                    nameInput: username,
-                    poinInput: '0', // Poin awal diatur 0 saat pertama terdeteksi
-                    mediaSrc: profileImgSrc
-                });
-            } else if (mediaType === 'video') {
-                if (mediaInput.files && mediaInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        channel.postMessage({
-                            type: 'UPDATE_SLOT',
-                            slotNum,
-                            mediaType: 'video',
-                            nameInput: username || `Slot ${slotNum}`,
-                            poinInput: '0', // Poin awal diatur 0
-                            mediaSrc: e.target.result
-                        });
-                    };
-                    reader.readAsDataURL(mediaInput.files[0]);
-                } else {
-                    alert('Pilih file video terlebih dahulu!');
-                }
-            }
+            channel.postMessage({
+                type: 'UPDATE_SLOT',
+                slotNum, mediaType, nameInput, initialPoin, mediaSrc, action: 'update'
+            });
         }
 
-        function sendGift() {
-            const giftInput = document.getElementById('giftVideoInput');
-            if (giftInput.files && giftInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    channel.postMessage({ type: 'PLAY_GIFT', src: e.target.result });
-                };
-                reader.readAsDataURL(giftInput.files[0]);
-            } else {
-                alert('Pilih file video gift terlebih dahulu!');
+        function clearMediaOnly() {
+            const slotNum = document.getElementById('selectSlotNum').value;
+            channel.postMessage({ type: 'UPDATE_SLOT', slotNum, action: 'clear_media' });
+        }
+
+        function clearSlotTotal() {
+            const slotNum = document.getElementById('selectSlotNum').value;
+            channel.postMessage({ type: 'UPDATE_SLOT', slotNum, action: 'clear_slot' });
+        }
+
+        function triggerGift() {
+            const targetSlot = document.getElementById('giftTargetSlot').value;
+            const src = document.getElementById('giftVideoUrl').value;
+            const increment = parseInt(document.getElementById('giftIncrement').value) || 44999;
+            if(src) {
+                channel.postMessage({ type: 'PLAY_GIFT', targetSlot, src, increment });
             }
         }
     </script>
