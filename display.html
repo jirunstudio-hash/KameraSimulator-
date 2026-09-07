@@ -49,24 +49,32 @@
         .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; z-index: 2; }
         .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; }
 
+        /* Icon bulat biru dengan bintang putih di dalam */
         .slot-coin-badge { 
-            position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 2px 5px; 
-            border-radius: 8px; z-index: 6; border: 1px solid rgba(255,255,255,0.10);
+            position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 2px; 
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 1px 4px; 
+            border-radius: 8px; z-index: 6; border: 1px solid rgba(255,255,255,0.1);
         }
-        .star-icon-svg { width: 9px; height: 9px; fill: #fff; }
+        .blue-star-circle {
+            width: 12px; height: 12px; background: #007aff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .star-icon-svg { width: 8px; height: 8px; fill: #fff; }
         .coin-count { font-size: 0.45rem; color: #fff; font-weight: 700; }
 
+        /* Bar bawah: Nama, Icon +, dan Mikrofon Putih Mute Bergaris Putih */
         .slot-bottom-bar { 
             position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; 
             align-items: center; justify-content: space-between; z-index: 5; 
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 5px; border-radius: 6px;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 4px; border-radius: 6px;
         }
-        .slot-name-pill { color: #fff; font-size: 0.45rem; font-weight: 500; max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slot-name-container { display: flex; align-items: center; gap: 2px; max-width: 75%; overflow: hidden; }
+        .slot-name-pill { color: #fff; font-size: 0.45rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slot-plus-icon { color: #fff; font-size: 0.45rem; font-weight: bold; }
         
         .mic-container { position: relative; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; }
         .mic-icon-svg { width: 9px; height: 9px; fill: #fff; }
-        .mic-mute-line { position: absolute; width: 12px; height: 1.5px; background-color: #ff3b30; transform: rotate(-45deg); display: block; }
+        .mic-mute-line { position: absolute; width: 12px; height: 1.5px; background-color: #fff; transform: rotate(-45deg); display: block; }
 
         .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; display: none; background: transparent; }
         #giftVideo { display: none; }
@@ -90,7 +98,9 @@
                         document.write(`
                             <div class="slot-box" id="slot-${i}">
                                 <div class="slot-coin-badge" id="coin-badge-${i}" style="display:none;">
-                                    <svg class="star-icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                    <div class="blue-star-circle">
+                                        <svg class="star-icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                    </div>
                                     <span class="coin-count" id="coincount-slot-${i}">0</span>
                                 </div>
                                 <span class="slot-icon" id="icon-${i}">+</span>
@@ -100,7 +110,10 @@
                                 <video id="vid-slot-${i}" class="slot-media" loop playsinline muted></video>
                                 
                                 <div class="slot-bottom-bar" id="bottombar-slot-${i}" style="display:none;">
-                                    <div class="slot-name-pill"><span id="nametext-slot-${i}">Slot ${i}</span></div>
+                                    <div class="slot-name-container">
+                                        <span class="slot-name-pill" id="nametext-slot-${i}">Slot ${i}</span>
+                                        <span class="slot-plus-icon">+</span>
+                                    </div>
                                     <div class="mic-container">
                                         <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
                                         <div class="mic-mute-line" id="micline-slot-${i}"></div>
@@ -183,7 +196,6 @@
                 }
             }
             else if (data.type === 'PLAY_GIFT') {
-                // Update semua poin slot yang aktif menjadi 4499K saat gift diputar
                 for (let i = 1; i <= 8; i++) {
                     const coincountElem = document.getElementById(`coincount-slot-${i}`);
                     const coinBadge = document.getElementById(`coin-badge-${i}`);
