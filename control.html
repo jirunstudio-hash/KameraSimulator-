@@ -11,10 +11,10 @@
         .card { background: #1e1e24; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
         input, select { width: 100%; padding: 8px 12px; background: #2a2a32; border: 1px solid #444; color: #fff; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; }
+        input[type="file"] { padding: 5px; cursor: pointer; }
         button { background: #007aff; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; margin-right: 5px; margin-top: 5px; }
         button:hover { opacity: 0.9; }
         button.danger { background: #ff3b30; }
-        button.secondary { background: #5856d6; }
     </style>
 </head>
 <body>
@@ -24,8 +24,8 @@
     <div class="card">
         <label>Nama Host</label>
         <input type="text" id="hostNameInput" placeholder="Contoh: Faz Gading">
-        <label>URL Video Host (MP4)</label>
-        <input type="text" id="hostVideoInput" placeholder="Link video host...">
+        <label>File Video Host (MP4)</label>
+        <input type="file" id="hostVideoFile" accept="video/mp4">
         <button onclick="updateHost()">Terapkan Host</button>
     </div>
 
@@ -43,25 +43,17 @@
             <option value="8">Slot 8</option>
         </select>
 
-        <label>Nama TikTok Target / Penonton</label>
-        <input type="text" id="targetNameInput" placeholder="Contoh: @BudiOfficial atau Budi">
+        <label>Username TikTok Target (Foto otomatis terdeteksi)</label>
+        <input type="text" id="targetNameInput" placeholder="Contoh: budiofficial">
 
-        <label>Tipe Media</label>
-        <select id="mediaTypeSelect">
-            <option value="empty">Kosong (Default)</option>
-            <option value="image">Foto Profil (Lingkar)</option>
-            <option value="video">Video Media</option>
-        </select>
-
-        <label>URL Media (Foto/Video Link)</label>
-        <input type="text" id="mediaUrlInput" placeholder="https://...">
+        <label>File Media (Foto / Video Slot)</label>
+        <input type="file" id="mediaFile" accept="image/*,video/mp4">
 
         <label>Target / Poin Awal</label>
         <input type="number" id="poinInput" value="0">
 
         <button onclick="applySlot()">Simpan / Update Slot</button>
-        <button class="secondary" onclick="clearMediaOnly()">Hapus Foto/Video Saja</button>
-        <button class="danger" onclick="clearSlotTotal()">Hapus / Kosongkan Slot</button>
+        <button class="danger" onclick="clearSlotTotal()">Kosongkan Slot</button>
     </div>
 
     <div class="card">
@@ -77,8 +69,10 @@
             <option value="7">Slot 7</option>
             <option value="8">Slot 8</option>
         </select>
-        <label>URL Video Gift (Green Screen/Transparan)</label>
-        <input type="text" id="giftVideoUrl" placeholder="Link video gift.mp4">
+
+        <label>File Video Gift (Green Screen/Transparan MP4)</label>
+        <input type="file" id="giftVideoFile" accept="video/mp4">
+
         <label>Tambah Poin (Default 44999)</label>
         <input type="number" id="giftIncrement" value="44999">
         <button onclick="triggerGift()">Putar Gift & Tambah Poin</button>
@@ -96,27 +90,44 @@
 
         function updateHost() {
             const label = document.getElementById('hostNameInput').value;
-            const src = document.getElementById('hostVideoInput').value;
+            const fileInput = document.getElementById('hostVideoFile');
             if(label) channel.postMessage({ type: 'UPDATE_HOST_LABEL', label });
-            if(src) channel.postMessage({ type: 'UPDATE_HOST_VIDEO', src });
+            if(fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    channel.postMessage({ type: 'UPDATE_HOST_VIDEO', src: e.target.result });
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
         }
 
         function applySlot() {
             const slotNum = document.getElementById('selectSlotNum').value;
             const nameInput = cleanName(document.getElementById('targetNameInput').value);
-            const mediaType = document.getElementById('mediaTypeSelect').value;
-            const mediaSrc = document.getElementById('mediaUrlInput').value;
             const initialPoin = parseInt(document.getElementById('poinInput').value) || 0;
+            const fileInput = document.getElementById('mediaFile');
 
-            channel.postMessage({
-                type: 'UPDATE_SLOT',
-                slotNum, mediaType, nameInput, initialPoin, mediaSrc, action: 'update'
-            });
-        }
+            // Simulasi otomatis mengambil foto profil berdasarkan username (bisa disesuaikan ke API TikTok / placeholder)
+            let autoProfileImg = nameInput ? `https://ui-avatars.com/api/?name=${encodeURIComponent(nameInput)}&background=random&color=fff` : '';
 
-        function clearMediaOnly() {
-            const slotNum = document.getElementById('selectSlotNum').value;
-            channel.postMessage({ type: 'UPDATE_SLOT', slotNum, action: 'clear_media' });
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const mediaSrc = e.target.result;
+                    const mediaType = file.type.startsWith('video') ? 'video' : 'image';
+                    channel.postMessage({
+                        type: 'UPDATE_SLOT',
+                        slotNum, mediaType, nameInput, initialPoin, mediaSrc, profileImg: autoProfileImg, action: 'update'
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                channel.postMessage({
+                    type: 'UPDATE_SLOT',
+                    slotNum, mediaType: 'none', nameInput, initialPoin, mediaSrc: '', profileImg: autoProfileImg, action: 'update'
+                });
+            }
         }
 
         function clearSlotTotal() {
@@ -126,10 +137,15 @@
 
         function triggerGift() {
             const targetSlot = document.getElementById('giftTargetSlot').value;
-            const src = document.getElementById('giftVideoUrl').value;
+            const fileInput = document.getElementById('giftVideoFile');
             const increment = parseInt(document.getElementById('giftIncrement').value) || 44999;
-            if(src) {
-                channel.postMessage({ type: 'PLAY_GIFT', targetSlot, src, increment });
+            
+            if(fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    channel.postMessage({ type: 'PLAY_GIFT', targetSlot, src: e.target.result, increment });
+                };
+                reader.readAsDataURL(fileInput.files[0]);
             }
         }
     </script>
