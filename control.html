@@ -65,21 +65,17 @@
                 <div class="input-group">
                     <label>Mode:</label>
                     <select id="mediaTypeSelect">
-                        <option value="image">Foto (Bulat)</option>
+                        <option value="user">User TikTok</option>
                         <option value="video">Video (Bulat)</option>
                         <option value="empty">Kosongkan</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>Nama:</label>
-                    <input type="text" id="guestName" placeholder="Nama..." style="width: 90px;">
+                    <label>Username:</label>
+                    <input type="text" id="guestName" placeholder="Ketik username..." style="width: 120px;">
                 </div>
-                <div class="input-group">
-                    <label>Poin:</label>
-                    <input type="text" id="guestPoin" placeholder="282,9K" style="width: 80px;">
-                </div>
-                <div class="input-group">
-                    <input type="file" id="guestMedia">
+                <div class="input-group" id="videoFileInputGroup" style="display:none;">
+                    <input type="file" id="guestMedia" accept="video/*">
                 </div>
                 <button onclick="sendSlotUpdate()">Pasang Ke Komal</button>
             </div>
@@ -97,6 +93,12 @@
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
+
+        // Toggle input file video jika mode video dipilih
+        document.getElementById('mediaTypeSelect').addEventListener('change', function() {
+            const isVideo = this.value === 'video';
+            document.getElementById('videoFileInputGroup').style.display = isVideo ? 'flex' : 'none';
+        });
 
         function sendHostLabel() {
             const bottomVal = document.getElementById('hostBottomInput').value;
@@ -117,8 +119,7 @@
         function sendSlotUpdate() {
             const slotNum = document.getElementById('slotSelect').value;
             const mediaType = document.getElementById('mediaTypeSelect').value;
-            const nameInput = document.getElementById('guestName').value;
-            const poinInput = document.getElementById('guestPoin').value;
+            const username = document.getElementById('guestName').value.trim();
             const mediaInput = document.getElementById('guestMedia');
 
             if (mediaType === 'empty') {
@@ -126,21 +127,39 @@
                 return;
             }
 
-            if (mediaInput.files && mediaInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    channel.postMessage({
-                        type: 'UPDATE_SLOT',
-                        slotNum, mediaType, nameInput, poinInput,
-                        mediaSrc: e.target.result
-                    });
-                };
-                reader.readAsDataURL(mediaInput.files[0]);
-            } else {
+            if (mediaType === 'user') {
+                if (!username) {
+                    alert('Masukkan username TikTok terlebih dahulu!');
+                    return;
+                }
+                // Otomatis ambil foto profil dari TikTok via unavatar / unfollowers / service publik
+                const profileImgSrc = `https://unavatar.io/tiktok/${username}`;
+                
                 channel.postMessage({
                     type: 'UPDATE_SLOT',
-                    slotNum, mediaType, nameInput, poinInput, mediaSrc: null
+                    slotNum,
+                    mediaType: 'image',
+                    nameInput: username,
+                    poinInput: '4499K', // Poin otomatis bertambah sesuai permintaan
+                    mediaSrc: profileImgSrc
                 });
+            } else if (mediaType === 'video') {
+                if (mediaInput.files && mediaInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        channel.postMessage({
+                            type: 'UPDATE_SLOT',
+                            slotNum,
+                            mediaType: 'video',
+                            nameInput: username || `Slot ${slotNum}`,
+                            poinInput: '4499K',
+                            mediaSrc: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(mediaInput.files[0]);
+                } else {
+                    alert('Pilih file video terlebih dahulu!');
+                }
             }
         }
 
