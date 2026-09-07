@@ -61,7 +61,6 @@
         .star-icon-svg { width: 8px; height: 8px; fill: #fff; }
         .coin-count { font-size: 0.45rem; color: #fff; font-weight: 700; }
 
-        /* Pil Nama & + Terpisah */
         .slot-name-pill { 
             position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 28px);
             display: flex; align-items: center; gap: 2px; z-index: 5; 
@@ -70,7 +69,6 @@
         .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .slot-plus-icon { color: #fff; font-size: 0.45rem; font-weight: bold; flex-shrink: 0; }
         
-        /* Ikon Mikrofon Terpisah di Pojok Kanan Bawah */
         .mic-container { 
             position: absolute; bottom: 4px; right: 4px; z-index: 5;
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
@@ -110,7 +108,7 @@
                                 <span class="slot-req" id="req-${i}">Request</span>
                                 
                                 <img id="img-slot-${i}" class="slot-circle-img">
-                                <video id="vid-slot-${i}" class="slot-media" loop playsinline muted></video>
+                                <video id="vid-slot-${i}" class="slot-media" loop playsinline></video>
                                 
                                 <div class="slot-name-pill" id="namepill-slot-${i}" style="display:none;">
                                     <span class="slot-name-text" id="nametext-slot-${i}">Slot ${i}</span>
@@ -136,6 +134,9 @@
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
+        // Menyimpan akumulasi poin setiap slot (default 0)
+        const slotPoints = {};
+        for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
         channel.onmessage = (event) => {
             const data = event.data;
@@ -149,10 +150,14 @@
                 videoElem.src = data.src;
                 videoElem.style.display = 'block';
                 placeholder.style.display = 'none';
-                videoElem.play();
+                videoElem.muted = false; // Suara aktif
+                videoElem.play().catch(e => {
+                    videoElem.muted = true;
+                    videoElem.play();
+                });
             } 
             else if (data.type === 'UPDATE_SLOT') {
-                const { slotNum, mediaType, nameInput, poinInput, mediaSrc } = data;
+                const { slotNum, mediaType, nameInput, initialPoin, mediaSrc } = data;
                 const coinBadge = document.getElementById(`coin-badge-${slotNum}`);
                 const coincountElem = document.getElementById(`coincount-slot-${slotNum}`);
                 const namePill = document.getElementById(`namepill-slot-${slotNum}`);
@@ -173,11 +178,13 @@
                     namePill.style.display = 'none';
                     micContainer.style.display = 'none';
                     coinBadge.style.display = 'none';
+                    slotPoints[slotNum] = 0;
                     return;
                 }
 
                 coinBadge.style.display = 'flex';
-                coincountElem.innerText = poinInput || '0';
+                slotPoints[slotNum] = initialPoin || 0;
+                coincountElem.innerText = formatPoin(slotPoints[slotNum]);
 
                 if (nameInput) {
                     nameText.innerText = nameInput;
@@ -197,22 +204,35 @@
                     } else if (mediaType === 'video') {
                         vidElem.src = mediaSrc;
                         vidElem.style.display = 'block';
-                        vidElem.muted = true; // Pastikan video termute agar bisa autoplay otomatis di browser
-                        vidElem.play().catch(e => console.log("Autoplay dicegah browser:", e));
+                        vidElem.muted = false; // Suara video slot aktif
+                        vidElem.play().catch(e => {
+                            vidElem.muted = true;
+                            vidElem.play();
+                        });
                     }
                 }
             }
             else if (data.type === 'PLAY_GIFT') {
+                // Setiap kali gift diputar, akumulasikan poin 44.999K ke slot yang aktif
                 for (let i = 1; i <= 8; i++) {
-                    const coincountElem = document.getElementById(`coincount-slot-${i}`);
                     const coinBadge = document.getElementById(`coin-badge-${i}`);
                     if (coinBadge.style.display === 'flex') {
-                        coincountElem.innerText = '4499K';
+                        slotPoints[i] += 44999;
+                        document.getElementById(`coincount-slot-${i}`).innerText = formatPoin(slotPoints[i]);
                     }
                 }
                 playGiftVideo(data.src);
             }
         };
+
+        function formatPoin(val) {
+            if (val >= 1000000) {
+                return (val / 1000000).toFixed(1).replace('.0', '') + 'M';
+            } else if (val >= 1000) {
+                return (val / 1000).toFixed(0) + 'K';
+            }
+            return val.toString();
+        }
 
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
@@ -225,7 +245,7 @@
             giftVideo.src = '';
             giftVideo.src = src;
             giftVideo.load();
-            giftVideo.muted = true; // Aktifkan mute agar video gift aman dari blokir autoplay browser
+            giftVideo.muted = false; // Suara video gift aktif
 
             giftVideo.play().then(() => {
                 function renderFrame() {
@@ -257,8 +277,8 @@
                 }
                 requestAnimationFrame(renderFrame);
             }).catch(err => {
-                console.error("Gagal memutar video gift:", err);
-                overlayContainer.style.display = 'none';
+                giftVideo.muted = true;
+                giftVideo.play();
             });
         }
     </script>
