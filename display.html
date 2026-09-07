@@ -213,14 +213,14 @@
         </div>
 
         <div class="gift-overlay" id="giftOverlayContainer">
-            <video id="giftVideo" crossorigin="anonymous" playsinline muted></video>
+            <!-- Atribut muted dihapus agar audio video gift bisa keluar -->
+            <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
         </div>
     </div>
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
-        let isPlayingGift = false;
 
         channel.onmessage = (event) => {
             const data = event.data;
