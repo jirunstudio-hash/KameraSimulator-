@@ -15,6 +15,7 @@
         button { background: #007aff; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; margin-right: 5px; margin-top: 5px; }
         button:hover { opacity: 0.9; }
         button.danger { background: #ff3b30; }
+        .note { font-size: 0.75rem; color: #f39c12; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -43,10 +44,11 @@
             <option value="8">Slot 8</option>
         </select>
 
-        <label>Username TikTok Target (Foto otomatis terdeteksi dari nama)</label>
+        <label>Username TikTok Target (Nama Akurat)</label>
         <input type="text" id="targetNameInput" placeholder="Contoh: budiofficial">
 
-        <label>Upload Foto Khusus (Opsional jika ingin foto asli)</label>
+        <label>Upload Foto Profil Target (Wajib agar foto 100% akurat sesuai aslinya)</label>
+        <div class="note">💡 Tips: Simpan/Screenshot foto profil target dari TikTok, lalu upload di sini agar hasilnya sempurna.</div>
         <input type="file" id="targetPhotoFile" accept="image/*">
 
         <label>Target / Poin Awal</label>
@@ -110,23 +112,15 @@
             if (photoFileInput.files && photoFileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    sendSlotData(slotNum, nameInput, initialPoin, e.target.result);
+                    channel.postMessage({
+                        type: 'UPDATE_SLOT',
+                        slotNum, nameInput, initialPoin, profileImg: e.target.result, action: 'update'
+                    });
                 };
                 reader.readAsDataURL(photoFileInput.files[0]);
             } else {
-                // Otomatis generate avatar / foto berdasarkan username menggunakan layanan generator publik gratis
-                let autoProfileImg = nameInput 
-                    ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(nameInput)}` 
-                    : '';
-                sendSlotData(slotNum, nameInput, initialPoin, autoProfileImg);
+                alert('Silakan pilih/upload foto profil target terlebih dahulu agar foto target akurat!');
             }
-        }
-
-        function sendSlotData(slotNum, nameInput, initialPoin, profileImg) {
-            channel.postMessage({
-                type: 'UPDATE_SLOT',
-                slotNum, nameInput, initialPoin, profileImg, action: 'update'
-            });
         }
 
         function clearSlotTotal() {
