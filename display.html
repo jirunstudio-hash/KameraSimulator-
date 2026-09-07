@@ -44,10 +44,9 @@
             transition: border-color 0.2s ease;
         }
         
-        /* Pinggir slot berubah jadi abu-abu lembut saat foto/video aktif */
+        /* Pinggir slot berubah jadi abu-abu lembut saat foto target aktif */
         .slot-box.active-media { border: 1.5px solid #666666 !important; }
         
-        .slot-media { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 2; }
         .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 3; border: 2px solid rgba(255, 255, 255, 0.2); }
 
         .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: 900; z-index: 2; -webkit-text-stroke: 0.4px #555; }
@@ -70,7 +69,7 @@
         .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; -webkit-text-stroke: 0.4px #fff; flex-shrink: 0; }
         
-        /* Mikrofon coret proporsional */
+        /* Mikrofon coret standar */
         .mic-container { 
             position: absolute; bottom: 4px; right: 4px; z-index: 5;
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
@@ -89,12 +88,13 @@
 </head>
 <body>
 
-    <div class="phone-screen">
+    <div class="phone-screen" id="displayContainer">
         <div class="live-layout">
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
-                <video id="hostVideo" class="host-video" loop autoplay playsinline muted></video>
+                <!-- Video host tanpa atribut muted agar suara terdengar -->
+                <video id="hostVideo" class="host-video" loop autoplay playsinline></video>
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
 
@@ -113,7 +113,6 @@
                                 <span class="slot-req" id="req-${i}">Request</span>
                                 
                                 <img id="img-slot-${i}" class="slot-circle-img">
-                                <video id="vid-slot-${i}" class="slot-media" loop playsinline muted></video>
                                 
                                 <div class="slot-name-pill" id="namepill-slot-${i}" style="display:none;">
                                     <span class="slot-name-text" id="nametext-slot-${i}">Slot ${i}</span>
@@ -132,7 +131,7 @@
         </div>
 
         <div class="gift-overlay" id="giftOverlayContainer">
-            <video id="giftVideo" crossorigin="anonymous" playsinline muted></video>
+            <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
         </div>
     </div>
@@ -142,18 +141,11 @@
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
-        const videoCache = {};
-        function getCachedVideo(src) {
-            if (!src) return null;
-            if (!videoCache[src]) {
-                const v = document.createElement('video');
-                v.src = src;
-                v.preload = 'auto';
-                v.load();
-                videoCache[src] = v;
-            }
-            return videoCache[src];
-        }
+        // Penanganan interaksi pertama kali agar browser mengizinkan audio/video bersuara
+        document.body.addEventListener('click', () => {
+            const hVid = document.getElementById('hostVideo');
+            if(hVid.paused) hVid.play().catch(()=>{});
+        }, { once: true });
 
         channel.onmessage = (event) => {
             const data = event.data;
@@ -173,7 +165,7 @@
                 videoElem.play().catch(() => {});
             } 
             else if (data.type === 'UPDATE_SLOT') {
-                const { slotNum, mediaType, nameInput, initialPoin, mediaSrc, action } = data;
+                const { slotNum, nameInput, initialPoin, profileImg, action } = data;
                 const slotBox = document.getElementById(`slot-${slotNum}`);
                 const coinBadge = document.getElementById(`coin-badge-${slotNum}`);
                 const coincountElem = document.getElementById(`coincount-slot-${slotNum}`);
@@ -181,16 +173,13 @@
                 const nameText = document.getElementById(`nametext-slot-${slotNum}`);
                 const micContainer = document.getElementById(`mic-slot-${slotNum}`);
                 const imgElem = document.getElementById(`img-slot-${slotNum}`);
-                const vidElem = document.getElementById(`vid-slot-${slotNum}`);
                 const iconElem = document.getElementById(`icon-${slotNum}`);
                 const reqElem = document.getElementById(`req-${slotNum}`);
 
-                if (action === 'clear_slot' || mediaType === 'empty') {
+                if (action === 'clear_slot') {
                     slotBox.classList.remove('active-media');
                     imgElem.style.display = 'none';
-                    vidElem.style.display = 'none';
-                    vidElem.pause();
-                    vidElem.removeAttribute('src');
+                    imgElem.removeAttribute('src');
                     iconElem.style.display = 'inline';
                     reqElem.style.display = 'inline';
                     namePill.style.display = 'none';
@@ -198,14 +187,6 @@
                     coinBadge.style.display = 'none';
                     slotPoints[slotNum] = 0;
                     return;
-                }
-
-                if (action === 'clear_media') {
-                    slotBox.classList.remove('active-media');
-                    imgElem.style.display = 'none';
-                    vidElem.style.display = 'none';
-                    vidElem.pause();
-                    vidElem.removeAttribute('src');
                 }
 
                 coinBadge.style.display = 'flex';
@@ -220,26 +201,12 @@
                     micContainer.style.display = 'flex';
                 }
 
-                if (mediaSrc) {
+                if (profileImg) {
                     slotBox.classList.add('active-media');
                     iconElem.style.display = 'none';
                     reqElem.style.display = 'none';
-                    getCachedVideo(mediaSrc);
-
-                    if (mediaType === 'image') {
-                        vidElem.style.display = 'none';
-                        vidElem.pause();
-                        imgElem.src = mediaSrc;
-                        imgElem.style.display = 'block';
-                    } else if (mediaType === 'video') {
-                        imgElem.style.display = 'none';
-                        if (vidElem.src !== mediaSrc) {
-                            vidElem.src = mediaSrc;
-                            vidElem.load();
-                        }
-                        vidElem.style.display = 'block';
-                        vidElem.play().catch(() => {});
-                    }
+                    imgElem.src = profileImg;
+                    imgElem.style.display = 'block';
                 }
             }
             else if (data.type === 'PLAY_GIFT') {
