@@ -43,13 +43,12 @@
             align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.08); 
         }
         
-        .slot-media { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; }
+        .slot-media { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 1; }
         .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 2; border: 2px solid rgba(255, 255, 255, 0.2); }
 
         .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: bold; z-index: 2; }
         .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; }
 
-        /* Icon bulat biru dengan bintang putih di dalam */
         .slot-coin-badge { 
             position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 2px; 
             background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 1px 4px; 
@@ -62,17 +61,21 @@
         .star-icon-svg { width: 8px; height: 8px; fill: #fff; }
         .coin-count { font-size: 0.45rem; color: #fff; font-weight: 700; }
 
-        /* Bar bawah: Nama, Icon +, dan Mikrofon Putih Mute Bergaris Putih */
-        .slot-bottom-bar { 
-            position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; 
-            align-items: center; justify-content: space-between; z-index: 5; 
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 4px; border-radius: 6px;
+        /* Pil Nama & + Terpisah */
+        .slot-name-pill { 
+            position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 28px);
+            display: flex; align-items: center; gap: 2px; z-index: 5; 
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
         }
-        .slot-name-container { display: flex; align-items: center; gap: 2px; max-width: 75%; overflow: hidden; }
-        .slot-name-pill { color: #fff; font-size: 0.45rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .slot-plus-icon { color: #fff; font-size: 0.45rem; font-weight: bold; }
+        .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slot-plus-icon { color: #fff; font-size: 0.45rem; font-weight: bold; flex-shrink: 0; }
         
-        .mic-container { position: relative; width: 10px; height: 10px; display: flex; align-items: center; justify-content: center; }
+        /* Ikon Mikrofon Terpisah di Pojok Kanan Bawah */
+        .mic-container { 
+            position: absolute; bottom: 4px; right: 4px; z-index: 5;
+            width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); border-radius: 4px;
+        }
         .mic-icon-svg { width: 9px; height: 9px; fill: #fff; }
         .mic-mute-line { position: absolute; width: 12px; height: 1.5px; background-color: #fff; transform: rotate(-45deg); display: block; }
 
@@ -109,15 +112,14 @@
                                 <img id="img-slot-${i}" class="slot-circle-img">
                                 <video id="vid-slot-${i}" class="slot-media" loop playsinline muted></video>
                                 
-                                <div class="slot-bottom-bar" id="bottombar-slot-${i}" style="display:none;">
-                                    <div class="slot-name-container">
-                                        <span class="slot-name-pill" id="nametext-slot-${i}">Slot ${i}</span>
-                                        <span class="slot-plus-icon">+</span>
-                                    </div>
-                                    <div class="mic-container">
-                                        <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
-                                        <div class="mic-mute-line" id="micline-slot-${i}"></div>
-                                    </div>
+                                <div class="slot-name-pill" id="namepill-slot-${i}" style="display:none;">
+                                    <span class="slot-name-text" id="nametext-slot-${i}">Slot ${i}</span>
+                                    <span class="slot-plus-icon">+</span>
+                                </div>
+
+                                <div class="mic-container" id="mic-slot-${i}" style="display:none;">
+                                    <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
+                                    <div class="mic-mute-line"></div>
                                 </div>
                             </div>
                         `);
@@ -153,8 +155,9 @@
                 const { slotNum, mediaType, nameInput, poinInput, mediaSrc } = data;
                 const coinBadge = document.getElementById(`coin-badge-${slotNum}`);
                 const coincountElem = document.getElementById(`coincount-slot-${slotNum}`);
-                const bottomBar = document.getElementById(`bottombar-slot-${slotNum}`);
+                const namePill = document.getElementById(`namepill-slot-${slotNum}`);
                 const nameText = document.getElementById(`nametext-slot-${slotNum}`);
+                const micContainer = document.getElementById(`mic-slot-${slotNum}`);
                 const imgElem = document.getElementById(`img-slot-${slotNum}`);
                 const vidElem = document.getElementById(`vid-slot-${slotNum}`);
                 const iconElem = document.getElementById(`icon-${slotNum}`);
@@ -167,7 +170,8 @@
                 if (mediaType === 'empty') {
                     iconElem.style.display = 'inline';
                     reqElem.style.display = 'inline';
-                    bottomBar.style.display = 'none';
+                    namePill.style.display = 'none';
+                    micContainer.style.display = 'none';
                     coinBadge.style.display = 'none';
                     return;
                 }
@@ -177,9 +181,11 @@
 
                 if (nameInput) {
                     nameText.innerText = nameInput;
-                    bottomBar.style.display = 'flex';
+                    namePill.style.display = 'flex';
+                    micContainer.style.display = 'flex';
                 } else {
-                    bottomBar.style.display = 'none';
+                    namePill.style.display = 'none';
+                    micContainer.style.display = 'none';
                 }
 
                 if (mediaSrc) {
@@ -191,7 +197,8 @@
                     } else if (mediaType === 'video') {
                         vidElem.src = mediaSrc;
                         vidElem.style.display = 'block';
-                        vidElem.play();
+                        vidElem.muted = true; // Pastikan video termute agar bisa autoplay otomatis di browser
+                        vidElem.play().catch(e => console.log("Autoplay dicegah browser:", e));
                     }
                 }
             }
@@ -218,6 +225,7 @@
             giftVideo.src = '';
             giftVideo.src = src;
             giftVideo.load();
+            giftVideo.muted = true; // Aktifkan mute agar video gift aman dari blokir autoplay browser
 
             giftVideo.play().then(() => {
                 function renderFrame() {
