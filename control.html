@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - TikTok Live</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #121212; color: #fff; padding: 15px; }
+        
+        .control-panel { 
+            background: #1e1e1e; padding: 15px; border-radius: 10px; 
+            display: flex; flex-direction: column; gap: 15px; max-width: 900px; margin: 0 auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .panel-title { color: #ff0050; font-size: 1.1rem; font-weight: bold; border-bottom: 2px solid #ff0050; padding-bottom: 5px; }
+        .section { background: #2a2a2a; padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+        .section h3 { font-size: 0.9rem; color: #ff0050; }
+        
+        .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .input-group { display: flex; align-items: center; gap: 6px; }
+        label { font-size: 0.8rem; color: #aaa; }
+        input[type="text"], select { padding: 6px; border-radius: 5px; border: 1px solid #444; background: #121212; color: #fff; font-size: 0.8rem; }
+        button { padding: 8px 14px; border-radius: 5px; background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        button.btn-pink { background: #ff0050; }
+    </style>
+</head>
+<body>
+
+    <div class="control-panel">
+        <div class="panel-title">CONTROL PANEL (WEB A)</div>
+        
+        <!-- SECTION 1: HOST -->
+        <div class="section">
+            <h3>1. Host Video</h3>
+            <div class="row">
+                <input type="file" id="videoInput" accept="video/*">
+                <button onclick="sendHostVideo()">Putar Video File</button>
+            </div>
+        </div>
+
+        <!-- SECTION 2: LABEL HOST -->
+        <div class="section">
+            <h3>2. Label Host</h3>
+            <div class="row">
+                <div class="input-group">
+                    <label>Nama Bawah:</label>
+                    <input type="text" id="hostBottomInput" value="Faz Gading" oninput="sendHostLabel()">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: KOMAL -->
+        <div class="section">
+            <h3>3. Komal (8 Slot)</h3>
+            <div class="row">
+                <div class="input-group">
+                    <label>Slot:</label>
+                    <select id="slotSelect">
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                        <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Mode:</label>
+                    <select id="mediaTypeSelect">
+                        <option value="image">Foto (Bulat)</option>
+                        <option value="video">Video (Bulat)</option>
+                        <option value="empty">Kosongkan</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Nama:</label>
+                    <input type="text" id="guestName" placeholder="Nama..." style="width: 90px;">
+                </div>
+                <div class="input-group">
+                    <label>Poin:</label>
+                    <input type="text" id="guestPoin" placeholder="282,9K" style="width: 80px;">
+                </div>
+                <div class="input-group">
+                    <input type="file" id="guestMedia">
+                </div>
+                <button onclick="sendSlotUpdate()">Pasang Ke Komal</button>
+            </div>
+        </div>
+
+        <!-- SECTION 4: GIFT -->
+        <div class="section">
+            <h3>4. Gift Overlay</h3>
+            <div class="row">
+                <input type="file" id="giftVideoInput" accept="video/*">
+                <button class="btn-pink" onclick="sendGift()">Mainkan Gift</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const channel = new BroadcastChannel('tiktok_live_channel');
+
+        function sendHostLabel() {
+            const bottomVal = document.getElementById('hostBottomInput').value;
+            channel.postMessage({ type: 'UPDATE_HOST_LABEL', label: bottomVal });
+        }
+
+        function sendHostVideo() {
+            const fileInput = document.getElementById('videoInput');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    channel.postMessage({ type: 'UPDATE_HOST_VIDEO', src: e.target.result });
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function sendSlotUpdate() {
+            const slotNum = document.getElementById('slotSelect').value;
+            const mediaType = document.getElementById('mediaTypeSelect').value;
+            const nameInput = document.getElementById('guestName').value;
+            const poinInput = document.getElementById('guestPoin').value;
+            const mediaInput = document.getElementById('guestMedia');
+
+            if (mediaType === 'empty') {
+                channel.postMessage({ type: 'UPDATE_SLOT', slotNum, mediaType });
+                return;
+            }
+
+            if (mediaInput.files && mediaInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    channel.postMessage({
+                        type: 'UPDATE_SLOT',
+                        slotNum, mediaType, nameInput, poinInput,
+                        mediaSrc: e.target.result
+                    });
+                };
+                reader.readAsDataURL(mediaInput.files[0]);
+            } else {
+                channel.postMessage({
+                    type: 'UPDATE_SLOT',
+                    slotNum, mediaType, nameInput, poinInput, mediaSrc: null
+                });
+            }
+        }
+
+        function sendGift() {
+            const giftInput = document.getElementById('giftVideoInput');
+            if (giftInput.files && giftInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    channel.postMessage({ type: 'PLAY_GIFT', src: e.target.result });
+                };
+                reader.readAsDataURL(giftInput.files[0]);
+            } else {
+                alert('Pilih file video gift terlebih dahulu!');
+            }
+        }
+    </script>
+</body>
+</html>
