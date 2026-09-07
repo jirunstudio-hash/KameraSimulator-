@@ -43,10 +43,10 @@
             <option value="8">Slot 8</option>
         </select>
 
-        <label>Username TikTok Target (Wajib Akurat)</label>
+        <label>Username TikTok Target (Foto otomatis terdeteksi dari nama)</label>
         <input type="text" id="targetNameInput" placeholder="Contoh: budiofficial">
 
-        <label>Upload Foto Profil Target (Opsional / Agar 100% Akurat)</label>
+        <label>Upload Foto Khusus (Opsional jika ingin foto asli)</label>
         <input type="file" id="targetPhotoFile" accept="image/*">
 
         <label>Target / Poin Awal</label>
@@ -110,20 +110,23 @@
             if (photoFileInput.files && photoFileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const profileImg = e.target.result;
-                    channel.postMessage({
-                        type: 'UPDATE_SLOT',
-                        slotNum, nameInput, initialPoin, profileImg, action: 'update'
-                    });
+                    sendSlotData(slotNum, nameInput, initialPoin, e.target.result);
                 };
                 reader.readAsDataURL(photoFileInput.files[0]);
             } else {
-                let fallbackImg = nameInput ? `https://ui-avatars.com/api/?name=${encodeURIComponent(nameInput)}&background=333&color=fff` : '';
-                channel.postMessage({
-                    type: 'UPDATE_SLOT',
-                    slotNum, nameInput, initialPoin, profileImg: fallbackImg, action: 'update'
-                });
+                // Otomatis generate avatar / foto berdasarkan username menggunakan layanan generator publik gratis
+                let autoProfileImg = nameInput 
+                    ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(nameInput)}` 
+                    : '';
+                sendSlotData(slotNum, nameInput, initialPoin, autoProfileImg);
             }
+        }
+
+        function sendSlotData(slotNum, nameInput, initialPoin, profileImg) {
+            channel.postMessage({
+                type: 'UPDATE_SLOT',
+                slotNum, nameInput, initialPoin, profileImg, action: 'update'
+            });
         }
 
         function clearSlotTotal() {
