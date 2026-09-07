@@ -94,7 +94,6 @@
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
 
-        // Toggle input file video jika mode video dipilih
         document.getElementById('mediaTypeSelect').addEventListener('change', function() {
             const isVideo = this.value === 'video';
             document.getElementById('videoFileInputGroup').style.display = isVideo ? 'flex' : 'none';
@@ -132,7 +131,6 @@
                     alert('Masukkan username TikTok terlebih dahulu!');
                     return;
                 }
-                // Otomatis ambil foto profil dari TikTok via unavatar / unfollowers / service publik
                 const profileImgSrc = `https://unavatar.io/tiktok/${username}`;
                 
                 channel.postMessage({
@@ -140,7 +138,7 @@
                     slotNum,
                     mediaType: 'image',
                     nameInput: username,
-                    poinInput: '4499K', // Poin otomatis bertambah sesuai permintaan
+                    poinInput: '0', // Poin awal diatur 0 saat pertama terdeteksi
                     mediaSrc: profileImgSrc
                 });
             } else if (mediaType === 'video') {
@@ -152,7 +150,7 @@
                             slotNum,
                             mediaType: 'video',
                             nameInput: username || `Slot ${slotNum}`,
-                            poinInput: '4499K',
+                            poinInput: '0', // Poin awal diatur 0
                             mediaSrc: e.target.result
                         });
                     };
