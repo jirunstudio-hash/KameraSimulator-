@@ -24,7 +24,7 @@
     <div class="card">
         <label>Nama Host</label>
         <input type="text" id="hostNameInput" placeholder="Contoh: Faz Gading">
-        <label>File Video Host (MP4 - Bersuara)</label>
+        <label>File Video Host (MP4 - Auto Play)</label>
         <input type="file" id="hostVideoFile" accept="video/mp4">
         <button onclick="updateHost()">Terapkan Host</button>
     </div>
@@ -43,8 +43,11 @@
             <option value="8">Slot 8</option>
         </select>
 
-        <label>Username TikTok Target (Foto otomatis terdeteksi sistem)</label>
+        <label>Username TikTok Target (Wajib Akurat)</label>
         <input type="text" id="targetNameInput" placeholder="Contoh: budiofficial">
+
+        <label>Upload Foto Profil Target (Opsional / Agar 100% Akurat)</label>
+        <input type="file" id="targetPhotoFile" accept="image/*">
 
         <label>Target / Poin Awal</label>
         <input type="number" id="poinInput" value="0">
@@ -102,14 +105,25 @@
             const slotNum = document.getElementById('selectSlotNum').value;
             const nameInput = cleanName(document.getElementById('targetNameInput').value);
             const initialPoin = parseInt(document.getElementById('poinInput').value) || 0;
+            const photoFileInput = document.getElementById('targetPhotoFile');
 
-            // Foto profil otomatis terdeteksi berdasarkan username menggunakan layanan avatar publik
-            let profileImg = nameInput ? `https://ui-avatars.com/api/?name=${encodeURIComponent(nameInput)}&background=random&color=fff` : '';
-
-            channel.postMessage({
-                type: 'UPDATE_SLOT',
-                slotNum, nameInput, initialPoin, profileImg, action: 'update'
-            });
+            if (photoFileInput.files && photoFileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const profileImg = e.target.result;
+                    channel.postMessage({
+                        type: 'UPDATE_SLOT',
+                        slotNum, nameInput, initialPoin, profileImg, action: 'update'
+                    });
+                };
+                reader.readAsDataURL(photoFileInput.files[0]);
+            } else {
+                let fallbackImg = nameInput ? `https://ui-avatars.com/api/?name=${encodeURIComponent(nameInput)}&background=333&color=fff` : '';
+                channel.postMessage({
+                    type: 'UPDATE_SLOT',
+                    slotNum, nameInput, initialPoin, profileImg: fallbackImg, action: 'update'
+                });
+            }
         }
 
         function clearSlotTotal() {
