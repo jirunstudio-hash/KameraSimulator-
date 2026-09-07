@@ -33,14 +33,14 @@
             width: 100%; 
             max-width: 400px;
             z-index: 10; 
-            align-items: stretch; /* Mengubah flex-start menjadi stretch agar tinggi host mengikuti grid secara fleksibel */
+            align-items: stretch; 
             margin-top: 0px; 
         }
 
-        /* KOTAK HOST (KIRI) - Tinggi otomatis menyesuaikan layout flex */
+        /* KOTAK HOST (KIRI) */
         .host-box { 
             flex: 1; 
-            height: auto; /* Menggunakan auto agar stretch flexbox bekerja sempurna tanpa bentrok */
+            height: auto; 
             background: #16161c; 
             border-radius: 12px; 
             overflow: hidden; 
@@ -164,14 +164,7 @@
             display: none; 
             background: transparent;
         }
-        #giftVideo { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+        #giftVideo { display: none; }
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
@@ -220,14 +213,14 @@
         </div>
 
         <div class="gift-overlay" id="giftOverlayContainer">
-            <video id="giftVideo" playsinline style="display:none;"></video>
+            <video id="giftVideo" crossorigin="anonymous" playsinline muted></video>
             <canvas id="giftCanvas"></canvas>
         </div>
     </div>
 
     <script>
-        // Fungsi sinkronisasi tinggi dihapus karena bentrok dengan flex stretch CSS
         const channel = new BroadcastChannel('tiktok_live_channel');
+        let isPlayingGift = false;
 
         channel.onmessage = (event) => {
             const data = event.data;
@@ -300,33 +293,46 @@
             const canvas = document.getElementById('giftCanvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-            giftVideo.src = src;
             overlayContainer.style.display = 'block';
-            giftVideo.currentTime = 0;
-            giftVideo.play();
+            giftVideo.pause();
+            giftVideo.src = '';
+            giftVideo.src = src;
+            giftVideo.load();
 
-            function renderFrame() {
-                if (giftVideo.paused || giftVideo.ended) {
-                    overlayContainer.style.display = 'none';
-                    return;
-                }
-                canvas.width = giftVideo.videoWidth || 420;
-                canvas.height = giftVideo.videoHeight || 840;
-                ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
-
-                const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = frame.data;
-                for (let i = 0; i < data.length; i += 4) {
-                    let r = data[i], g = data[i + 1], b = data[i + 2];
-                    if (g > 60 && g > r * 1.2 && g > b * 1.2) {
-                        data[i + 3] = 0;
+            giftVideo.play().then(() => {
+                function renderFrame() {
+                    if (giftVideo.paused || giftVideo.ended) {
+                        overlayContainer.style.display = 'none';
+                        return;
                     }
-                }
-                ctx.putImageData(frame, 0, 0);
-                requestAnimationFrame(renderFrame);
-            }
+                    
+                    if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
+                        canvas.width = giftVideo.videoWidth;
+                        canvas.height = giftVideo.videoHeight;
+                        ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
 
-            giftVideo.addEventListener('play', renderFrame);
+                        try {
+                            const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            const pixels = frame.data;
+                            for (let i = 0; i < pixels.length; i += 4) {
+                                let r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+                                // Pembersihan background hijau (greenscreen)
+                                if (g > 60 && g > r * 1.2 && g > b * 1.2) {
+                                    pixels[i + 3] = 0;
+                                }
+                            }
+                            ctx.putImageData(frame, 0, 0);
+                        } catch (e) {
+                            console.error("Gagal memproses frame canvas:", e);
+                        }
+                    }
+                    requestAnimationFrame(renderFrame);
+                }
+                requestAnimationFrame(renderFrame);
+            }).catch(err => {
+                console.error("Gagal memutar video gift:", err);
+                overlayContainer.style.display = 'none';
+            });
         }
     </script>
 </body>
