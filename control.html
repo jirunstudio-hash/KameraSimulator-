@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Live - Control Panel</title>
+    <title>TikTok Live - Control Panel (Auto Detect)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: #121216; color: #fff; padding: 20px; max-width: 600px; margin: 0 auto; }
         h2 { font-size: 1.2rem; margin-bottom: 15px; color: #00f2fe; }
+        h3 { font-size: 1rem; margin-bottom: 10px; color: #fff; }
         .card { background: #1e1e24; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
         input, select { width: 100%; padding: 8px 12px; background: #2a2a32; border: 1px solid #444; color: #fff; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; }
@@ -16,6 +17,28 @@
         button:hover { opacity: 0.9; }
         button.danger { background: #ff3b30; }
         .note { font-size: 0.75rem; color: #f39c12; margin-bottom: 8px; }
+        
+        /* Style untuk Kotak Deteksi Target Otomatis */
+        .top-target-input-row { position: relative; }
+        .top-target-spinner {
+            display: none; position: absolute; right: 11px; top: 12px; width: 15px; height: 15px;
+            border: 2px solid #444; border-top-color: #fe2c55; border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+        .top-target-spinner.show { display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .top-target-status { display: none; margin-top: -5px; margin-bottom: 8px; font-size: 11px; color: #fe2c55; }
+        
+        .target-preview-box {
+            display: none; align-items: center; gap: 12px; background: #2a2a32;
+            padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #444;
+        }
+        .target-preview-box.show { display: flex; }
+        .target-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #444; }
+        .target-info div { font-size: 0.85rem; }
+        .target-name { font-weight: bold; color: #fff; }
+        .target-username { font-size: 0.75rem; color: #aaa; }
     </style>
 </head>
 <body>
@@ -44,12 +67,21 @@
             <option value="8">Slot 8</option>
         </select>
 
-        <label>Username TikTok Target (Nama Akurat)</label>
-        <input type="text" id="targetNameInput" placeholder="Contoh: budiofficial">
+        <label>Username TikTok Target (Auto Deteksi Foto & Nama)</label>
+        <div class="top-target-input-row">
+            <input type="text" id="targetNameInput" placeholder="Contoh: budiofficial" autocomplete="off">
+            <span id="topTargetSpinner" class="top-target-spinner"></span>
+        </div>
+        <div id="targetStatus" class="top-target-status">Mencari data akun...</div>
 
-        <label>Upload Foto Profil Target (Wajib agar foto 100% akurat sesuai aslinya)</label>
-        <div class="note">💡 Tips: Simpan/Screenshot foto profil target dari TikTok, lalu upload di sini agar hasilnya sempurna.</div>
-        <input type="file" id="targetPhotoFile" accept="image/*">
+        <!-- Preview Hasil Deteksi Otomatis -->
+        <div id="targetCard" class="target-preview-box">
+            <img id="targetAvatar" class="target-avatar" alt="Foto Profil">
+            <div class="target-info">
+                <div id="targetName" class="target-name">-</div>
+                <div id="targetUsername" class="target-username">-</div>
+            </div>
+        </div>
 
         <label>Target / Poin Awal</label>
         <input type="number" id="poinInput" value="0">
@@ -83,6 +115,16 @@
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
 
+        // --- BAGIAN SISTEM DETEKSI AKURAT (Diambil dari Website Kedua) ---
+        const input = document.getElementById("targetUsernameInput");
+        const spinner = document.getElementById("topTargetSpinner");
+        const statusBox = document.getElementById("targetStatus");
+        const card = document.getElementById("targetCard");
+
+        let detectedAvatarBase64 = ""; // Menyimpan hasil konversi foto profil otomatis ke Base64
+        let targetTimer = null;
+        const cache = {};
+
         function cleanName(raw) {
             if(!raw) return '';
             let val = raw.trim();
@@ -90,6 +132,110 @@
             return val;
         }
 
+        function extractUser(raw) {
+            if(!raw || typeof raw !== "object") throw new Error("API response empty");
+            if(raw.code !== undefined && Number(raw.code) !== 0) throw new Error(raw.msg || "API error");
+            const root = raw.data || raw;
+            const info = root.userInfo || root.user_info || {};
+            const user = info.user || root.user || info || root;
+            const username = String(pick(user, ["uniqueId", "unique_id", "username"], "")).replace(/^@/, "").trim();
+            if(!username) throw new Error("Username tidak ditemukan");
+            return {
+                username,
+                name: String(pick(user, ["nickname", "name", "display_name"], username)),
+                avatar: String(pick(user, ["avatarLarger", "avatarMedium", "avatarThumb", "avatar", "avatar_url"], ""))
+            };
+        }
+
+        function pick(obj, keys, fb) {
+            for(const k of keys) {
+                let v = obj;
+                for(const p of k.split(".")) v = v?.[p];
+                if(v !== undefined && v !== null && v !== "") return v;
+            }
+            return fb;
+        }
+
+        async function requestTikwmUser(username) {
+            const res = await fetch("https://www.tikwm.com/api/user/info/", {
+                method: "POST", cache: "no-store",
+                headers: {"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", "Accept": "application/json"},
+                body: "unique_id=" + encodeURIComponent(username)
+            });
+            if(!res.ok) throw new Error("HTTP " + res.status);
+            const json = await res.json();
+            return extractUser(json);
+        }
+
+        // Fungsi mengubah URL gambar profil otomatis menjadi Base64 agar aman dikirim via BroadcastChannel
+        async function getBase64FromUrl(url) {
+            try {
+                const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(url));
+                const blob = await response.blob();
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                return url; // Fallback jika CORS gagal
+            }
+        }
+
+        async function renderTarget(data) {
+            const av = document.getElementById("targetAvatar");
+            av.src = data.avatar || "";
+            document.getElementById("targetName").textContent = data.name || data.username;
+            document.getElementById("targetUsername").textContent = "@" + data.username;
+            
+            card.classList.add("show");
+            statusBox.style.display = "none";
+            spinner.classList.remove("show");
+
+            // Otomatis convert gambar ke base64 agar siap dipakai sistem slot
+            if(data.avatar) {
+                detectedAvatarBase64 = await getBase64FromUrl(data.avatar);
+            }
+        }
+
+        async function fetchTarget(username) {
+            if(!username) return;
+            if(cache[username]) {
+                renderTarget(cache[username]);
+                return;
+            }
+
+            spinner.classList.add("show");
+            statusBox.textContent = "Mendeteksi akun TikTok...";
+            statusBox.style.display = "block";
+
+            try {
+                const data = await requestTikwmUser(username);
+                cache[username] = data;
+                renderTarget(data);
+            } catch(e) {
+                spinner.classList.remove("show");
+                statusBox.textContent = "Akun tidak ditemukan / Gagal mendeteksi";
+                card.classList.remove("show");
+            }
+        }
+
+        // Event listener saat mengetik username (Auto-detect dengan jeda debounce 600ms)
+        input.addEventListener("input", function() {
+            clearTimeout(targetTimer);
+            const cleanVal = cleanName(input.value);
+            if(!cleanVal) {
+                card.classList.remove("show");
+                statusBox.style.display = "none";
+                spinner.classList.remove("show");
+                return;
+            }
+            targetTimer = setTimeout(() => {
+                fetchTarget(cleanVal);
+            }, 600);
+        });
+
+        // --- FUNGSI KONTROL UTAMA ---
         function updateHost() {
             const label = document.getElementById('hostNameInput').value;
             const fileInput = document.getElementById('hostVideoFile');
@@ -101,31 +247,41 @@
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             }
+            alert("Host berhasil diperbarui!");
         }
 
         function applySlot() {
             const slotNum = document.getElementById('selectSlotNum').value;
-            const nameInput = cleanName(document.getElementById('targetNameInput').value);
+            const nameInput = cleanName(document.getElementById('targetUsernameInput').value);
             const initialPoin = parseInt(document.getElementById('poinInput').value) || 0;
-            const photoFileInput = document.getElementById('targetPhotoFile');
 
-            if (photoFileInput.files && photoFileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    channel.postMessage({
-                        type: 'UPDATE_SLOT',
-                        slotNum, nameInput, initialPoin, profileImg: e.target.result, action: 'update'
-                    });
-                };
-                reader.readAsDataURL(photoFileInput.files[0]);
-            } else {
-                alert('Silakan pilih/upload foto profil target terlebih dahulu agar foto target akurat!');
+            if (!nameInput) {
+                alert('Silakan masukkan username TikTok target terlebih dahulu!');
+                return;
             }
+
+            if (!detectedAvatarBase64) {
+                alert('Tunggu sebentar hingga foto profil selesai dideteksi otomatis!');
+                return;
+            }
+
+            // Kirim data ke tampilan utama via BroadcastChannel menggunakan hasil deteksi otomatis
+            channel.postMessage({
+                type: 'UPDATE_SLOT',
+                slotNum, 
+                nameInput, 
+                initialPoin, 
+                profileImg: detectedAvatarBase64, 
+                action: 'update'
+            });
+
+            alert(`Slot ${slotNum} berhasil diperbarui dengan akun @${nameInput}!`);
         }
 
         function clearSlotTotal() {
             const slotNum = document.getElementById('selectSlotNum').value;
             channel.postMessage({ type: 'UPDATE_SLOT', slotNum, action: 'clear_slot' });
+            alert(`Slot ${slotNum} dikosongkan!`);
         }
 
         function triggerGift() {
@@ -137,8 +293,11 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     channel.postMessage({ type: 'PLAY_GIFT', targetSlot, src: e.target.result, increment });
+                    alert("Gift berhasil dipicu ke layar utama!");
                 };
                 reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert("Pilih file video gift MP4 terlebih dahulu!");
             }
         }
     </script>
