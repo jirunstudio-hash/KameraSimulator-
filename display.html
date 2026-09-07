@@ -44,7 +44,6 @@
             transition: border-color 0.2s ease;
         }
         
-        /* Pinggir slot berubah jadi abu-abu lembut saat foto target aktif */
         .slot-box.active-media { border: 1.5px solid #666666 !important; }
         
         .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 3; border: 2px solid rgba(255, 255, 255, 0.2); }
@@ -69,7 +68,6 @@
         .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; -webkit-text-stroke: 0.4px #fff; flex-shrink: 0; }
         
-        /* Mikrofon coret standar */
         .mic-container { 
             position: absolute; bottom: 4px; right: 4px; z-index: 5;
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
@@ -93,7 +91,6 @@
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
-                <!-- Video host tanpa atribut muted agar suara terdengar -->
                 <video id="hostVideo" class="host-video" loop autoplay playsinline></video>
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
@@ -141,10 +138,10 @@
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
-        // Penanganan interaksi pertama kali agar browser mengizinkan audio/video bersuara
+        // Auto-play trigger agar video host langsung jalan dan bersuara saat halaman diklik sekali
         document.body.addEventListener('click', () => {
             const hVid = document.getElementById('hostVideo');
-            if(hVid.paused) hVid.play().catch(()=>{});
+            if(hVid.paused && hVid.src) hVid.play().catch(()=>{});
         }, { once: true });
 
         channel.onmessage = (event) => {
