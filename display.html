@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Studio - TikTok Live</title>
+    <title>Display Studio - TikTok Live HD</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #0b0b0e; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
@@ -81,7 +81,7 @@
 
         .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; display: none; background: transparent; }
         #giftVideo { display: none; }
-        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; image-rendering: high-quality; }
+        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
     </style>
 </head>
 <body>
@@ -224,14 +224,14 @@
             return val.toString();
         }
 
-        // Fungsi Chroma Key HD & Super Clean (Tanpa Sisa Hijau, Menyatu Nyata)
+        // Fungsi Chroma Key HD Ultra Bersih (Anti-Burik & Anti-Sisa Hijau)
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
             const canvas = document.getElementById('giftCanvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
             
-            // Mengaktifkan smoothing tinggi agar resolusi HD tetap tajam
+            // Pengaturan kualitas rendering gambar tingkat maksimum agar tidak burik
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
@@ -249,9 +249,14 @@
                         return;
                     }
                     if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
-                        // Menggunakan resolusi asli video HD secara penuh
-                        canvas.width = giftVideo.videoWidth;
-                        canvas.height = giftVideo.videoHeight;
+                        // Memaksa resolusi kanvas sama persis dengan resolusi video aslinya (Full HD/HD Asli)
+                        if (canvas.width !== giftVideo.videoWidth || canvas.height !== giftVideo.videoHeight) {
+                            canvas.width = giftVideo.videoWidth;
+                            canvas.height = giftVideo.videoHeight;
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = 'high';
+                        }
+
                         ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
 
                         try {
@@ -263,20 +268,21 @@
                                 let g = pixels[i + 1];
                                 let b = pixels[i + 2];
 
-                                // Deteksi kemurnian warna hijau (Green Screen Matriks)
+                                // Formula Advance Chroma Key: Mendeteksi dominasi hijau murni terhadap merah & biru
+                                // Ditambah ambang batas ketat agar latar belakang hitam web/layar tidak terpengaruh
                                 let maxRB = Math.max(r, b);
-                                let greenDominance = g - maxRB;
+                                let greenDiff = g - maxRB;
 
-                                if (greenDominance > 15) {
-                                    // Area hijau dihilangkan transparan secara halus (feathering)
-                                    let alphaFactor = Math.min(1, (greenDominance - 15) / 35);
+                                // Jika piksel mengandung unsur hijau dominan (Green Screen)
+                                if (greenDiff > 12 && g > 40) {
+                                    // Hitung tingkat kehalusan transisi (feathering) agar ujung objek mulus tanpa gerigi
+                                    let alphaFactor = Math.min(1, (greenDiff - 12) / 25);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
-                                } else {
-                                    // Pembersihan sisa garis hijau di ujung objek (Spill Suppression)
-                                    // Mengubah bayangan hijau sisa di pinggir agar menyatu dengan warna asli objek
-                                    if (g > (r + b) / 2) {
-                                        pixels[i + 1] = Math.floor((r + b) / 2);
-                                    }
+                                } 
+                                
+                                // Pembersihan total sisa bayangan hijau (Green Spill Suppression) di pinggir objek
+                                if (pixels[i + 3] > 0 && g > (r + b) * 0.55) {
+                                    pixels[i + 1] = Math.floor((r + b) / 2); // Netralkan warna hijau pudar di pinggir jadi natural
                                 }
                             }
                             ctx.putImageData(frame, 0, 0);
