@@ -252,10 +252,24 @@
                         try {
                             const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
                             const pixels = frame.data;
+                            
                             for (let i = 0; i < pixels.length; i += 4) {
-                                let r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-                                if (g > 60 && g > r * 1.2 && g > b * 1.2) {
-                                    pixels[i + 3] = 0;
+                                let r = pixels[i];
+                                let g = pixels[i + 1];
+                                let b = pixels[i + 2];
+                                
+                                let maxRB = Math.max(r, b);
+                                
+                                if (g > maxRB) {
+                                    let diff = g - maxRB;
+                                    let threshold = 10; 
+                                    let softness = 40;  
+
+                                    if (diff > threshold) {
+                                        let alpha = 255 - ((diff - threshold) / softness) * 255;
+                                        pixels[i + 3] = Math.max(0, Math.min(255, alpha));
+                                        pixels[i + 1] = maxRB;
+                                    }
                                 }
                             }
                             ctx.putImageData(frame, 0, 0);
