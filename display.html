@@ -81,7 +81,7 @@
 
         .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; display: none; background: transparent; }
         #giftVideo { display: none; }
-        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; image-rendering: high-quality; }
     </style>
 </head>
 <body>
@@ -224,12 +224,16 @@
             return val.toString();
         }
 
-        // Fungsi Chroma Key Profesional (Clean & Seamless Anti-Cacat)
+        // Fungsi Chroma Key HD & Super Clean (Tanpa Sisa Hijau, Menyatu Nyata)
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
             const canvas = document.getElementById('giftCanvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            // Mengaktifkan smoothing tinggi agar resolusi HD tetap tajam
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
 
             overlayContainer.style.display = 'block';
             if(giftVideo.src !== src) {
@@ -245,6 +249,7 @@
                         return;
                     }
                     if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
+                        // Menggunakan resolusi asli video HD secara penuh
                         canvas.width = giftVideo.videoWidth;
                         canvas.height = giftVideo.videoHeight;
                         ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
@@ -252,36 +257,24 @@
                         try {
                             const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
                             const pixels = frame.data;
-                            
-                            // Warna target acuan green screen murni (RGB: 0, 255, 0)
-                            const targetR = 0, targetG = 255, targetB = 0;
 
                             for (let i = 0; i < pixels.length; i += 4) {
                                 let r = pixels[i];
                                 let g = pixels[i + 1];
                                 let b = pixels[i + 2];
-                                
-                                // Hitung jarak kemiripan warna pixel dengan warna hijau murni (Euclidean Distance)
-                                let diffR = r - targetR;
-                                let diffG = g - targetG;
-                                let diffB = b - targetB;
-                                let distance = Math.sqrt(diffR * diffR + diffG * diffG + diffB * diffB);
 
-                                // Pengaturan batas toleransi kehalusan (Smooth Threshold)
-                                let innerLimit = 95;  // Area hijau total yang langsung dibuang
-                                let outerLimit = 160; // Area transisi pinggiran (feathering) agar menyatu mulus
+                                // Deteksi kemurnian warna hijau (Green Screen Matriks)
+                                let maxRB = Math.max(r, b);
+                                let greenDominance = g - maxRB;
 
-                                if (distance < outerLimit) {
-                                    if (distance < innerLimit) {
-                                        pixels[i + 3] = 0; // Transparan penuh (hilang bersih)
-                                    } else {
-                                        // Gradasi halus di pinggir objek agar tidak ada sisa kotak/gerigi
-                                        let alphaFactor = (distance - innerLimit) / (outerLimit - innerLimit);
-                                        pixels[i + 3] = Math.floor(alphaFactor * 255);
-                                    }
+                                if (greenDominance > 15) {
+                                    // Area hijau dihilangkan transparan secara halus (feathering)
+                                    let alphaFactor = Math.min(1, (greenDominance - 15) / 35);
+                                    pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } else {
-                                    // Spill Suppression: Membersihkan pantulan sisa warna hijau di pinggir objek animasi
-                                    if (g > r && g > b) {
+                                    // Pembersihan sisa garis hijau di ujung objek (Spill Suppression)
+                                    // Mengubah bayangan hijau sisa di pinggir agar menyatu dengan warna asli objek
+                                    if (g > (r + b) / 2) {
                                         pixels[i + 1] = Math.floor((r + b) / 2);
                                     }
                                 }
