@@ -138,7 +138,6 @@
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
-        // Auto-play trigger agar video host langsung jalan dan bersuara saat halaman diklik sekali
         document.body.addEventListener('click', () => {
             const hVid = document.getElementById('hostVideo');
             if(hVid.paused && hVid.src) hVid.play().catch(()=>{});
@@ -225,6 +224,7 @@
             return val.toString();
         }
 
+        // Fungsi khusus video berlatar hitam (Black Background / Luma Key)
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -258,17 +258,20 @@
                                 let g = pixels[i + 1];
                                 let b = pixels[i + 2];
                                 
-                                let maxRB = Math.max(r, b);
+                                // Hitung tingkat kecerahan (brightness) dari warna RGB
+                                let brightness = (r + g + b) / 3;
                                 
-                                if (g > maxRB) {
-                                    let diff = g - maxRB;
-                                    let threshold = 10; 
-                                    let softness = 40;  
+                                // Atur batas sensitivitas warna hitam
+                                let blackThreshold = 20; // Semakin kecil semakin bersih dari hitam
+                                let fadeRange = 35;      // Kehalusan pinggiran agar tidak kaku/pecah
 
-                                    if (diff > threshold) {
-                                        let alpha = 255 - ((diff - threshold) / softness) * 255;
+                                if (brightness < (blackThreshold + fadeRange)) {
+                                    if (brightness < blackThreshold) {
+                                        pixels[i + 3] = 0; // Hitam murni jadi 100% transparan
+                                    } else {
+                                        // Efek gradasi halus (feathering) di pinggiran objek bercahaya
+                                        let alpha = ((brightness - blackThreshold) / fadeRange) * 255;
                                         pixels[i + 3] = Math.max(0, Math.min(255, alpha));
-                                        pixels[i + 1] = maxRB;
                                     }
                                 }
                             }
