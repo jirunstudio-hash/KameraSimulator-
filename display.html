@@ -79,9 +79,30 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; display: none; background: transparent; }
-        #giftVideo { display: none; }
-        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .gift-overlay { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 30; 
+            pointer-events: none; 
+            display: none; 
+        }
+
+        #giftVideo { 
+            display: none; 
+        }
+
+        #giftCanvas { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.5));
+        }
     </style>
 </head>
 <body>
@@ -138,7 +159,7 @@
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
-        // Auto-play trigger agar video host langsung jalan dan bersuara saat halaman diklik sekali
+        // Auto-play trigger agar video host langsung jalan saat halaman diklik sekali
         document.body.addEventListener('click', () => {
             const hVid = document.getElementById('hostVideo');
             if(hVid.paused && hVid.src) hVid.play().catch(()=>{});
@@ -232,39 +253,64 @@
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
             overlayContainer.style.display = 'block';
-            if(giftVideo.src !== src) {
+            
+            if (giftVideo.src !== src) {
                 giftVideo.src = src;
                 giftVideo.load();
             }
             giftVideo.currentTime = 0;
 
             giftVideo.play().then(() => {
+                let animationFrameId;
+
                 function renderFrame() {
                     if (giftVideo.paused || giftVideo.ended) {
                         overlayContainer.style.display = 'none';
+                        cancelAnimationFrame(animationFrameId);
                         return;
                     }
+
                     if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
-                        canvas.width = giftVideo.videoWidth;
-                        canvas.height = giftVideo.videoHeight;
+                        if (canvas.width !== giftVideo.videoWidth || canvas.height !== giftVideo.videoHeight) {
+                            canvas.width = giftVideo.videoWidth;
+                            canvas.height = giftVideo.videoHeight;
+                        }
+
                         ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
 
                         try {
                             const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                            const pixels = frame.data;
-                            for (let i = 0; i < pixels.length; i += 4) {
-                                let r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-                                if (g > 60 && g > r * 1.2 && g > b * 1.2) {
-                                    pixels[i + 3] = 0;
+                            const l = frame.data.length / 4;
+
+                            for (let i = 0; i < l; i++) {
+                                let r = frame.data[i * 4 + 0];
+                                let g = frame.data[i * 4 + 1];
+                                let b = frame.data[i * 4 + 2];
+
+                                // Algoritma Chroma Key & Soft Edge De-spilling
+                                if (g > 50 && g > r * 1.25 && g > b * 1.25) {
+                                    let maxOther = Math.max(r, b);
+                                    let factor = (g - maxOther) / 50; 
+
+                                    if (factor > 1) {
+                                        frame.data[i * 4 + 3] = 0; // Transparan penuh
+                                    } else {
+                                        frame.data[i * 4 + 3] = Math.floor((1 - factor) * 255);
+                                        frame.data[i * 4 + 1] = maxOther; // Hapus warna hijau berlebih di tepi
+                                    }
                                 }
                             }
                             ctx.putImageData(frame, 0, 0);
-                        } catch (e) {}
+                        } catch (e) {
+                            console.error("Gagal memproses chroma key:", e);
+                        }
                     }
-                    requestAnimationFrame(renderFrame);
+                    animationFrameId = requestAnimationFrame(renderFrame);
                 }
-                requestAnimationFrame(renderFrame);
-            }).catch(() => {
+
+                animationFrameId = requestAnimationFrame(renderFrame);
+            }).catch((err) => {
+                console.error("Gagal memutar video gift:", err);
                 overlayContainer.style.display = 'none';
             });
         }
