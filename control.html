@@ -43,7 +43,7 @@
 
     <div class="dashboard">
 
-        <!-- 1. KAMERA HOST REALTIME -->
+        <!-- 1. KAMERA HOST -->
         <div class="card">
             <h3>1. Kamera Host Realtime</h3>
             <div style="display:flex; gap: 8px;">
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <!-- 2. DETEKSI AKUN TIKTOK ASLI & PASANG KE KOTAK -->
+        <!-- 2. DETEKSI USERNAME TIKTOK & PASANG KOTAK 1-8 -->
         <div class="card">
             <h3>2. Deteksi Akun TikTok Asli & Pasang ke Kotak</h3>
             
@@ -218,7 +218,7 @@
             channel.postMessage({ type: 'HOST_CAM_STOP' });
         }
 
-        // ================= 2. FUNGSI API TIKWM ASLI =================
+        // ================= 2. API TIKWM ASLI =================
         function pickNested(obj, keys) {
             if (!obj) return null;
             for (var i = 0; i < keys.length; i++) {
