@@ -15,7 +15,7 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
-        /* AREA ATAS: HOST & KOTAK 1 - 8 (PERSIS FOTO) */
+        /* AREA ATAS: HOST & KOTAK 1 - 8 (PERSIS FOTO TIKTOK LIVE) */
         .live-layout { display: flex; gap: 8px; width: 100%; max-width: 400px; z-index: 10; align-items: stretch; }
 
         .host-box { 
@@ -27,7 +27,7 @@
         #hostCameraImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: none; }
         .host-placeholder { color: #555; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
-        /* BADGE HOST EMAS KHAS TIKTOK (SESUAI FOTO) */
+        /* BADGE HOST EMAS KHAS TIKTOK */
         .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
         .gold-host-badge { 
             background: linear-gradient(135deg, #e5a93c 0%, #d48b17 100%); 
@@ -55,7 +55,7 @@
         .slot-box.active-media { border: 1.5px solid #666666 !important; }
         .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 3; border: 2px solid rgba(255, 255, 255, 0.2); }
 
-        /* ICON & TEKS PERMINTAAN SESUAI FOTO */
+        /* ICON & TEKS PERMINTAAN */
         .slot-icon { color: #666; font-size: 1rem; margin-bottom: 2px; font-weight: 800; z-index: 2; }
         .slot-req { color: #888; font-size: 0.5rem; font-weight: 600; letter-spacing: 0.2px; z-index: 2; }
 
@@ -87,27 +87,27 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        /* ===== AREA VIDEO GIFT SETENGAH LAYAR BAWAH (ANTI GARIS KAKU) ===== */
+        /* ===== AREA VIDEO GIFT: MELAYANG DI ATAS KOTAK TAPI KOTAK TETAP TEMBUS TERLIHAT ===== */
         .gift-overlay { 
             position: absolute; 
             bottom: 0; 
             left: 0; 
             width: 100%; 
-            height: 50%; /* Tepat di setengah layar bagian bawah persis foto Singa */
-            z-index: 30; 
+            height: 72%; /* Menjangkau naik ke atas kotak komal & host */
+            z-index: 35; /* Di atas kotak secara layer */
             pointer-events: none; 
             display: none; 
             background: transparent; 
 
-            /* MENGHILANGKAN GARIS KAKU DENGAN GRADASI TRANSPARAN HALUS (SOFT BLEND) */
-            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 90%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 90%, transparent 100%);
+            /* GRADASI HALUS ANTI-GARIS KAKU */
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 92%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 92%, transparent 100%);
         }
         #giftVideo { display: none; }
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
-            object-fit: cover; /* Pas mengisi area bawah tanpa gepeng */
+            object-fit: contain; /* Animasi proporsional & utuh */
             object-position: center bottom;
             position: absolute; 
             bottom: 0; 
@@ -161,7 +161,7 @@
             </div>
         </div>
 
-        <!-- AREA BAWAH: ANIMASI GIFT PERSIS FOTO (SEPARUH BAWAH TANPA GARIS KAKU) -->
+        <!-- AREA VIDEO GIFT (MELAYANG DI ATAS KOTAK, KOTAK DI BELAKANGNYA TETAP KELIHATAN) -->
         <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
@@ -278,7 +278,7 @@
             return val.toString();
         }
 
-        // CHROMA KEY ULTRA BERSIH + SOFT BLEND ANTI GARIS KAKU
+        // CHROMA KEY ULTRA BERSIH + TRANSPARANSI TEMBUS PANDANG KE KOTAK
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -296,10 +296,6 @@
             giftVideo.currentTime = 0;
 
             giftVideo.play().then(() => {
-                // Posisi pas di bagian bawah panggung persis seperti foto singa
-                canvas.style.objectFit = 'cover';
-                canvas.style.objectPosition = 'center bottom';
-
                 function renderFrame() {
                     if (giftVideo.paused || giftVideo.ended) {
                         overlayContainer.style.display = 'none';
@@ -327,14 +323,14 @@
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
-                                // Deteksi Green Screen dengan kelembutan tepi
-                                if (greenDiff > 12 && g > 40) {
-                                    let alphaFactor = Math.min(1, (greenDiff - 12) / 25);
+                                // Deteksi Green Screen: ubah background hijau menjadi 100% transparan
+                                if (greenDiff > 10 && g > 38) {
+                                    let alphaFactor = Math.min(1, (greenDiff - 10) / 22);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } 
                                 
-                                // Bersihkan sisa hijau di tepi objek agar menyatu alami
-                                if (pixels[i + 3] > 0 && g > (r + b) * 0.55) {
+                                // Spill suppression agar tepi objek bersih tanpa garis hijau
+                                if (pixels[i + 3] > 0 && g > (r + b) * 0.54) {
                                     pixels[i + 1] = Math.floor((r + b) / 2);
                                 }
                             }
