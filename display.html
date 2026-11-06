@@ -80,9 +80,29 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        .gift-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; display: none; background: transparent; }
+        /* AREA ANIMASI GIFT KHAS TIKTOK: SETENGAH LAYAR BAWAH */
+        .gift-overlay { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 52%; 
+            z-index: 30; 
+            pointer-events: none; 
+            display: none; 
+            background: transparent; 
+        }
         #giftVideo { display: none; }
-        #giftCanvas { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
+        #giftCanvas { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            image-rendering: -webkit-optimize-contrast; 
+            image-rendering: crisp-edges; 
+        }
     </style>
 </head>
 <body>
@@ -93,7 +113,6 @@
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video / Kamera</div>
                 <video id="hostVideo" class="host-video" loop autoplay playsinline muted></video>
-                <!-- Frame kamera real-time dari panel kontrol -->
                 <img id="hostCameraImg" alt="Host Cam">
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
@@ -112,7 +131,7 @@
                                 <span class="slot-icon" id="icon-${i}">+</span>
                                 <span class="slot-req" id="req-${i}">Request</span>
                                 
-                                <img id="img-slot-${i}" class="slot-circle-img">
+                                <img id="img-slot-${i}" class="slot-circle-img" referrerpolicy="no-referrer">
                                 
                                 <div class="slot-name-pill" id="namepill-slot-${i}" style="display:none;">
                                     <span class="slot-name-text" id="nametext-slot-${i}">Slot ${i}</span>
@@ -164,7 +183,6 @@
                 placeholder.style.display = 'none';
                 videoElem.play().catch(() => {});
             } 
-            // TERIMA STREAM FRAME KAMERA DARI CONTROL PANEL
             else if (data.type === 'HOST_CAM_FRAME') {
                 const camImg = document.getElementById('hostCameraImg');
                 const placeholder = document.getElementById('hostPlaceholder');
@@ -234,7 +252,7 @@
                     slotPoints[targetSlot] += (data.increment || 44999);
                     document.getElementById(`coincount-slot-${targetSlot}`).innerText = formatPoin(slotPoints[targetSlot]);
                 }
-                playGiftVideo(data.src);
+                playGiftVideo(data.src, data.sizeMode);
             }
         };
 
@@ -247,12 +265,19 @@
             return val.toString();
         }
 
-        function playGiftVideo(src) {
+        // Engine Chroma Key HD (Setengah Layar Bawah)
+        function playGiftVideo(src, sizeMode) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
             const canvas = document.getElementById('giftCanvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
             
+            if (sizeMode === 'full') {
+                overlayContainer.style.height = '100%';
+            } else {
+                overlayContainer.style.height = '52%';
+            }
+
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
