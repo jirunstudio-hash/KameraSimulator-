@@ -133,14 +133,6 @@
                 </div>
             </div>
 
-            <div class="form-group" style="margin-top: 4px;">
-                <label>Ukuran Tampilan di Display:</label>
-                <select id="giftSizeMode">
-                    <option value="half" selected>Setengah Layar Bawah (Khas Animasi TikTok Live)</option>
-                    <option value="full">Layar Penuh (Full Screen)</option>
-                </select>
-            </div>
-
             <button class="btn-gold" style="width:100%; margin-top:8px;" onclick="sendGiftAnimation()">🎁 KIRIM ANIMASI KE DISPLAY</button>
         </div>
 
@@ -226,7 +218,7 @@
             channel.postMessage({ type: 'HOST_CAM_STOP' });
         }
 
-        // ================= 2. FUNGSI API TIKWM ASLI MILIK ANDA =================
+        // ================= 2. FUNGSI API TIKWM ASLI =================
         function pickNested(obj, keys) {
             if (!obj) return null;
             for (var i = 0; i < keys.length; i++) {
@@ -299,7 +291,6 @@
             btn.disabled = true;
 
             try {
-                // Memanggil fungsi API asli milik Anda
                 var data = await requestTikwmUser(cleanUser);
 
                 currentDetectedProfile = {
@@ -394,7 +385,6 @@
             const src = selectedGiftBase64 || document.getElementById('giftUrlInput').value.trim();
             const target = parseInt(document.getElementById('giftTargetSlot').value);
             const point = parseInt(document.getElementById('manualPointInput').value) || 0;
-            const sizeMode = document.getElementById('giftSizeMode').value;
 
             if (!src) {
                 alert("Pilih file video animasi dari galeri atau masukkan link video terlebih dahulu!");
@@ -405,8 +395,7 @@
                 type: 'PLAY_GIFT',
                 src: src,
                 targetSlot: target,
-                increment: point,
-                sizeMode: sizeMode
+                increment: point
             });
         }
     </script>
