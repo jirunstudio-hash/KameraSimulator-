@@ -15,7 +15,7 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
-        /* ===== AREA KOTAK 1-8 & HOST (DI BELAKANG VIDEO TAPI KONTRAS & SANGAT JELAS) ===== */
+        /* ===== AREA ATAS: HOST & KOTAK 1 - 8 (PERSIS FOTO TIKTOK) ===== */
         .live-layout { 
             display: flex; gap: 8px; width: 100%; max-width: 400px; 
             position: relative; z-index: 10; 
@@ -47,9 +47,9 @@
         }
         .host-bottom-text { font-size: 0.55rem; color: #fff; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* GRID KOMAL (KOTAK 1 - 8 PERSIS SCREENSHOT TIKTOK) */
+        /* GRID KOMAL (KOTAK 1 - 8 PERSIS FOTO) */
         .komal-grid { 
-            width: 186px; display: grid; grid-template-columns: repeat(2, 1fr); 
+            width: 184px; display: grid; grid-template-columns: repeat(2, 1fr); 
             grid-template-rows: repeat(4, 1fr); gap: 5px; flex-shrink: 0; 
             position: relative; z-index: 10; 
         }
@@ -58,16 +58,22 @@
             width: 100%; aspect-ratio: 1 / 1; background: #191a20; border-radius: 8px; 
             position: relative; overflow: hidden; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.07); 
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
         }
 
-        /* STATE KOSONG: + DAN Permintaan */
-        .slot-icon { color: #777a86; font-size: 1.1rem; margin-bottom: 2px; font-weight: 500; z-index: 3; line-height: 1; }
-        .slot-req { color: #838694; font-size: 0.52rem; font-weight: 500; letter-spacing: 0.1px; z-index: 3; }
+        /* 1. STATE KOSONG (KOTAK 3-8): + DAN Permintaan */
+        .slot-icon { 
+            color: #797c88; font-size: 1.15rem; margin-bottom: 2px; 
+            font-weight: 400; z-index: 3; line-height: 1; 
+        }
+        .slot-req { 
+            color: #7e818f; font-size: 0.52rem; font-weight: 500; 
+            letter-spacing: 0.1px; z-index: 3; 
+        }
 
-        /* FOTO PROFIL KOTAK (BULAT 52PX PERSIS FOTO SLOT 1 & 2) */
+        /* 2. FOTO PROFIL BULAT DI TENGAH (PERSIS KOTAK 1 & 2) */
         .slot-circle-img { 
             width: 52px; height: 52px; border-radius: 50%; object-fit: cover; 
             display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
@@ -75,7 +81,7 @@
             background: #252730;
         }
 
-        /* BADGE KOIN KIRI ATAS: [BLUE-STAR] 126,4K */
+        /* 3. BADGE KOIN DI KIRI ATAS: [BLUE-STAR] 126,4K */
         .slot-coin-badge { 
             position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; 
             background: rgba(0, 0, 0, 0.58); backdrop-filter: blur(4px); padding: 1.5px 5px; 
@@ -85,7 +91,7 @@
         .star-icon-svg { width: 7px; height: 7px; fill: #fff; }
         .coin-count { font-size: 0.48rem; color: #fff; font-weight: 700; letter-spacing: 0.2px; }
 
-        /* NAMA PILL KIRI BAWAH: panggi... + */
+        /* 4. PILL NAMA DI KIRI BAWAH: panggi... + */
         .slot-name-pill { 
             position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 24px); 
             display: flex; align-items: center; gap: 2px; z-index: 6; 
@@ -94,11 +100,11 @@
         }
         .slot-name-text { 
             color: #fff; font-size: 0.46rem; font-weight: 600; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 48px; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46px; 
         }
-        .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 800; flex-shrink: 0; margin-left: 1px; }
+        .slot-plus-icon { color: #fff; font-size: 0.52rem; font-weight: 800; flex-shrink: 0; margin-left: 1px; }
 
-        /* MIC KANAN BAWAH: BULAT KECIL PERSIS FOTO */
+        /* 5. MIC DI KANAN BAWAH: BULAT KECIL PERSIS FOTO */
         .mic-container { 
             position: absolute; bottom: 4px; right: 4px; z-index: 6; 
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
@@ -117,7 +123,7 @@
             left: 0; 
             width: 100%; 
             height: 100%; 
-            z-index: 50; /* VIDEO DI DEPAN KOTAK */
+            z-index: 50; 
             pointer-events: none; 
             display: none; 
             background: transparent; 
@@ -153,22 +159,28 @@
                     for(let i = 1; i <= 8; i++) {
                         document.write(`
                             <div class="slot-box" id="slot-${i}">
+                                <!-- BADGE KOIN KIRI ATAS -->
                                 <div class="slot-coin-badge" id="coin-badge-${i}" style="display:none;">
                                     <div class="blue-star-circle">
                                         <svg class="star-icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                                     </div>
                                     <span class="coin-count" id="coincount-slot-${i}">0</span>
                                 </div>
+
+                                <!-- STATE KOSONG: + DAN Permintaan -->
                                 <span class="slot-icon" id="icon-${i}">+</span>
                                 <span class="slot-req" id="req-${i}">Permintaan</span>
                                 
+                                <!-- FOTO BULAT DI TENGAH -->
                                 <img id="img-slot-${i}" class="slot-circle-img" referrerpolicy="no-referrer">
                                 
+                                <!-- PILL NAMA + KIRI BAWAH -->
                                 <div class="slot-name-pill" id="namepill-slot-${i}" style="display:none;">
                                     <span class="slot-name-text" id="nametext-slot-${i}">Slot ${i}</span>
                                     <span class="slot-plus-icon">+</span>
                                 </div>
 
+                                <!-- MIC BULAT KANAN BAWAH -->
                                 <div class="mic-container" id="mic-slot-${i}" style="display:none;">
                                     <svg class="mic-icon-svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
                                     <div class="mic-mute-line"></div>
@@ -235,7 +247,6 @@
             }
             else if (data.type === 'UPDATE_SLOT') {
                 const { slotNum, nameInput, initialPoin, profileImg, action } = data;
-                const slotBox = document.getElementById(`slot-${slotNum}`);
                 const coinBadge = document.getElementById(`coin-badge-${slotNum}`);
                 const coincountElem = document.getElementById(`coincount-slot-${slotNum}`);
                 const namePill = document.getElementById(`namepill-slot-${slotNum}`);
@@ -245,6 +256,7 @@
                 const iconElem = document.getElementById(`icon-${slotNum}`);
                 const reqElem = document.getElementById(`req-${slotNum}`);
 
+                // JIKA DITURUNKAN / DIKOSONGKAN
                 if (action === 'clear_slot') {
                     imgElem.style.display = 'none';
                     imgElem.removeAttribute('src');
@@ -257,6 +269,7 @@
                     return;
                 }
 
+                // JIKA NAIK KE KOTAK (PERSIS FOTO SLOT 1 & 2)
                 if (initialPoin !== undefined) {
                     slotPoints[slotNum] = initialPoin;
                 }
@@ -286,7 +299,7 @@
             }
         };
 
-        // FORMAT ANGKA PERSIS FOTO: 126,4K dan 34,9K
+        // FORMAT ANGKA KOIN PERSIS FOTO: 126,4K dan 34,9K
         function formatPoin(val) {
             if (!val || val === 0) return '0';
             if (val >= 1000000) {
@@ -297,7 +310,7 @@
             return val.toLocaleString('id-ID');
         }
 
-        // CHROMA KEY GANDA: HAPUS HIJAU & HAPUS HITAM TOTAL
+        // CHROMA KEY GANDA (HAPUS HIJAU & HAPUS HITAM TOTAL)
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -341,7 +354,7 @@
                                 let g = pixels[i + 1];
                                 let b = pixels[i + 2];
 
-                                // 1. DETEKSI BACKGROUND HIJAU (GREEN SCREEN)
+                                // 1. HAPUS BACKGROUND HIJAU
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
@@ -353,7 +366,7 @@
                                     pixels[i + 1] = Math.floor((r + b) / 2);
                                 }
 
-                                // 2. DETEKSI BACKGROUND HITAM (BLACK SCREEN REMOVER)
+                                // 2. HAPUS BACKGROUND HITAM (BLACK SCREEN REMOVER)
                                 let brightness = Math.max(r, Math.max(g, b));
                                 if (brightness < 42) {
                                     let blackAlpha = Math.max(0, (brightness - 10) / 32);
