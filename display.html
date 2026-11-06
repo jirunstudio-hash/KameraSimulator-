@@ -15,10 +15,10 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
-        /* ===== KOTAK DI BELAKANG (Z-INDEX: 10) TAPI DIBUAT SANGAT JELAS & KONTRAS ===== */
+        /* ===== AREA KOTAK 1-8 & HOST (DI BELAKANG VIDEO TAPI KONTRAS & TERANG) ===== */
         .live-layout { 
             display: flex; gap: 8px; width: 100%; max-width: 400px; 
-            position: relative; z-index: 10; /* Di belakang video animasi */
+            position: relative; z-index: 10; 
             align-items: stretch; 
         }
 
@@ -111,14 +111,14 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        /* ===== VIDEO ANIMASI: DI PALING DEPAN (Z-INDEX: 50) ===== */
+        /* ===== VIDEO ANIMASI: DI DEPAN KOTAK (Z-INDEX: 50) ===== */
         .gift-overlay { 
             position: absolute; 
             top: 0; 
             left: 0; 
             width: 100%; 
-            height: 100%; /* Ambil penuh seluruh layar */
-            z-index: 50;  /* VIDEO DI DEPAN KOTAK */
+            height: 100%; 
+            z-index: 50;  /* Video berada di depan kotak */
             pointer-events: none; 
             display: none; 
             background: transparent; 
@@ -127,7 +127,7 @@
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* Mengambil seluruh video utuh */
+            object-fit: contain; 
             object-position: center bottom;
             position: absolute; 
             top: 0; 
@@ -139,7 +139,7 @@
 <body>
 
     <div class="phone-screen" id="displayContainer">
-        <!-- AREA ATAS (KOTAK 1 - 8 & HOST BERADA DI BELAKANG VIDEO) -->
+        <!-- AREA ATAS (KOTAK 1 - 8 & HOST) -->
         <div class="live-layout">
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="gold-host-badge">Host</span></div>
@@ -181,7 +181,7 @@
             </div>
         </div>
 
-        <!-- AREA VIDEO GIFT (DI DEPAN KOTAK, TAPI AREA NON-KARAKTER BENING KRISTAL) -->
+        <!-- AREA VIDEO GIFT (HAPUS BACKGROUND HIJAU & HITAM TOTAL) -->
         <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
@@ -298,7 +298,7 @@
             return val.toString();
         }
 
-        // CHROMA KEY MAKSIMAL: VIDEO DI DEPAN, KOTAK DI BELAKANG TETAP TEMBUS TERANG
+        // ===== CHROMA KEY GANDA (HAPUS BACKGROUND HIJAU & BACKGROUND HITAM OTOMATIS) =====
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -330,7 +330,7 @@
                             ctx.imageSmoothingQuality = 'high';
                         }
 
-                        // Bersihkan canvas agar tidak ada bayangan gelap yang menutupi kotak di belakang
+                        // Bersihkan canvas setiap frame agar tidak ada sisa bayangan
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
 
@@ -343,18 +343,25 @@
                                 let g = pixels[i + 1];
                                 let b = pixels[i + 2];
 
+                                // 1. DETEKSI BACKGROUND HIJAU (GREEN SCREEN)
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
-                                // Hilangkan warna hijau secara mutlak agar kotak di belakangnya tembus pandang 100%
                                 if (greenDiff > 8 && g > 35) {
                                     let alphaFactor = Math.min(1, (greenDiff - 8) / 20);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } 
-                                
-                                // Bersihkan warna tepi hijau agar karakter gift terlihat menyatu di depan kotak
-                                if (pixels[i + 3] > 0 && g > (r + b) * 0.52) {
+                                else if (pixels[i + 3] > 0 && g > (r + b) * 0.52) {
                                     pixels[i + 1] = Math.floor((r + b) / 2);
+                                }
+
+                                // 2. DETEKSI BACKGROUND HITAM (BLACK SCREEN AUTO-REMOVER)
+                                // Jika video berlatar hitam, ubah piksel gelap menjadi transparan murni
+                                let brightness = Math.max(r, Math.max(g, b));
+                                if (brightness < 42) {
+                                    // Hitung kelembutan tepi gelap agar tidak kasar
+                                    let blackAlpha = Math.max(0, (brightness - 10) / 32);
+                                    pixels[i + 3] = Math.min(pixels[i + 3], Math.floor(blackAlpha * 255));
                                 }
                             }
                             ctx.putImageData(frame, 0, 0);
