@@ -3,96 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Panel - TikTok Live</title>
+    <title>Control Panel - TikTok Live Studio</title>
     <style>
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: #121216; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .panel { max-width: 500px; width: 100%; display: flex; flex-direction: column; gap: 15px; }
-        .card { background: #1c1c24; border: 1px solid #2e2e3a; border-radius: 10px; padding: 15px; }
-        h3 { font-size: 0.95rem; margin-bottom: 10px; color: #4facfe; }
-        button { padding: 10px 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; }
-        .btn-green { background: #10b981; }
-        .btn-green:hover { background: #059669; }
-        .btn-red { background: #ef4444; }
-        .btn-red:hover { background: #dc2626; }
-        .btn-blue { background: #2563eb; }
-        input, select { width: 100%; padding: 8px 10px; background: #2b2b36; border: 1px solid #444; color: #fff; border-radius: 6px; margin-top: 4px; margin-bottom: 8px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0f0f13; color: #fff; padding: 15px; display: flex; justify-content: center; }
+        .dashboard { width: 100%; max-width: 650px; display: flex; flex-direction: column; gap: 14px; }
+        
+        .card { background: #181820; border: 1px solid #2a2a38; border-radius: 12px; padding: 15px; }
+        h3 { font-size: 0.95rem; font-weight: 700; color: #4facfe; margin-bottom: 12px; border-bottom: 1px solid #262635; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+        label { font-size: 0.75rem; color: #aaa; font-weight: 600; }
+        input, select, button { padding: 9px 12px; border-radius: 6px; border: 1px solid #38384a; background: #22222d; color: #fff; font-size: 0.85rem; outline: none; }
+        input:focus, select:focus { border-color: #4facfe; }
+
+        button { cursor: pointer; font-weight: bold; border: none; transition: 0.2s; }
+        .btn-green { background: #10b981; } .btn-green:hover { background: #059669; }
+        .btn-red { background: #ef4444; } .btn-red:hover { background: #dc2626; }
+        .btn-blue { background: #2563eb; } .btn-blue:hover { background: #1d4ed8; }
+        .btn-tiktok { background: #ff0050; } .btn-tiktok:hover { background: #e00045; }
+        .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; font-size: 0.95rem; padding: 12px; }
+        .btn-gold:hover { filter: brightness(1.1); }
+
+        /* Preview Kamera */
+        .cam-preview-box { width: 100%; height: 140px; background: #000; border-radius: 8px; border: 1px dashed #444; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 8px; }
+        #camPreviewVideo { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+        /* Preview Profil TikWm */
+        .profile-preview { display: none; align-items: center; gap: 10px; background: #222230; padding: 8px 12px; border-radius: 8px; margin-top: 6px; border: 1px solid #38384a; }
+        .profile-preview img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #ff0050; }
+        .profile-meta { display: flex; flex-direction: column; font-size: 0.8rem; }
+        .profile-meta b { color: #fff; }
+        .profile-meta span { color: #888; font-size: 0.7rem; }
+
+        /* Slot Manager Grid */
+        .slot-manager-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+        .slot-item { background: #20202c; border: 1px solid #2d2d3f; border-radius: 8px; padding: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .slot-item-info { font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <!-- KONTROL KAMERA HOST -->
+    <div class="dashboard">
+
+        <!-- 1. FITUR AKTIFKAN KAMERA HOST -->
         <div class="card">
-            <h3>Kamera Host Display</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:10px;">
-                Klik tombol di bawah untuk menampilkan kamera langsung di kotak Host display:
-            </p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-green" style="flex:1;" onclick="sendCameraAction('start')">Aktifkan Kamera Host</button>
-                <button class="btn-red" style="flex:1;" onclick="sendCameraAction('stop')">Matikan Kamera Host</button>
+            <h3>1. Kamera Host Realtime</h3>
+            <div style="display:flex; gap: 8px;">
+                <button id="btnStartCam" class="btn-green" style="flex:1;" onclick="startCamera()">🔴 Aktifkan Kamera Host</button>
+                <button id="btnStopCam" class="btn-red" style="flex:1; display:none;" onclick="stopCamera()">⏹ Matikan Kamera</button>
+            </div>
+            <div class="cam-preview-box">
+                <span id="camPlaceholder" style="font-size:0.75rem; color:#666;">Preview Kamera Panel Operator</span>
+                <video id="camPreviewVideo" autoplay playsinline muted></video>
             </div>
         </div>
 
-        <!-- KONTROL NAMA HOST -->
+        <!-- 2. FITUR DETEKSI TIKTOK (TikWm API) & PASANG KOTAK 1-8 -->
         <div class="card">
-            <h3>Nama Host</h3>
-            <input type="text" id="hostName" value="Faz Gading" placeholder="Nama Host...">
-            <button class="btn-blue" style="width:100%;" onclick="updateHostName()">Ganti Nama Host</button>
-        </div>
-
-        <!-- KONTROL KOMAL SLOT -->
-        <div class="card">
-            <h3>Kelola Komal Slot (1 - 8)</h3>
-            <select id="slotSelect">
-                <option value="1">Slot 1</option><option value="2">Slot 2</option>
-                <option value="3">Slot 3</option><option value="4">Slot 4</option>
-                <option value="5">Slot 5</option><option value="6">Slot 6</option>
-                <option value="7">Slot 7</option><option value="8">Slot 8</option>
-            </select>
-            <input type="text" id="slotName" placeholder="Nama Penonton Komal">
-            <input type="number" id="slotCoin" value="0" placeholder="Koin">
-            <input type="text" id="slotImg" placeholder="URL Foto Profil">
+            <h3>2. Deteksi Akun TikTok & Pasang ke Kotak</h3>
             
-            <div style="display:flex; gap:8px;">
-                <button class="btn-green" style="flex:1;" onclick="setSlot()">Pasang Komal</button>
-                <button class="btn-red" style="flex:1;" onclick="clearSlot()">Kosongkan</button>
+            <div class="form-group">
+                <label>Ketik Username TikTok (Auto-Deteksi Profil via TikWm):</label>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" id="tiktokUsernameInput" placeholder="Contoh: fazgading / @user" style="flex:1;">
+                    <button class="btn-tiktok" onclick="detectTikTokUser()">🔍 Cari di TikTok</button>
+                </div>
+            </div>
+
+            <!-- Box Preview Hasil API TikWm -->
+            <div id="profilePreviewBox" class="profile-preview">
+                <img id="prevImg" src="" alt="Avatar">
+                <div class="profile-meta">
+                    <b id="prevNick">Nama</b>
+                    <span id="prevUser">@username</span>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                <div class="form-group">
+                    <label>Pilih Kotak Tujuan (1 - 8):</label>
+                    <select id="targetSlotSelect">
+                        <option value="1">Kotak 1</option><option value="2">Kotak 2</option>
+                        <option value="3">Kotak 3</option><option value="4">Kotak 4</option>
+                        <option value="5">Kotak 5</option><option value="6">Kotak 6</option>
+                        <option value="7">Kotak 7</option><option value="8">Kotak 8</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Koin Awal:</label>
+                    <input type="number" id="initCoinInput" value="0">
+                </div>
+            </div>
+
+            <button class="btn-green" style="width:100%; margin-top:4px;" onclick="placeUserToSlot()">➕ Pasang ke Kotak Terpilih</button>
+        </div>
+
+        <!-- 3. FITUR TURUNKAN KOTAK 1-8 (MANUAL & OTOMATIS SEMUA) -->
+        <div class="card">
+            <h3>
+                <span>3. Kelola & Turunkan Kotak (1 - 8)</span>
+                <button class="btn-red" style="font-size:0.75rem; padding: 4px 10px;" onclick="clearAllSlots()">⚠️ TURUNKAN SEMUA KOTAK</button>
+            </h3>
+            
+            <div class="slot-manager-grid" id="slotManagerContainer">
+                <!-- Diisi otomatis oleh JavaScript -->
             </div>
         </div>
+
+        <!-- 4 & 5. FITUR VIDEO ANIMASI DARI GALERI & MASUKAN POIN MANUAL -->
+        <div class="card" style="border: 1px solid #f59e0b;">
+            <h3 style="color:#f59e0b;">4 & 5. Kirim Video Animasi Gift & Poin Manual</h3>
+
+            <div class="form-group">
+                <label>Pilih Video Animasi dari Galeri HP/Laptop (.mp4 Green Screen):</label>
+                <input type="file" id="giftGalleryFile" accept="video/mp4,video/*" onchange="handleGalleryVideo(event)">
+                <input type="text" id="giftUrlInput" placeholder="Atau paste URL link video..." style="margin-top:4px;">
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="form-group">
+                    <label>Target Kotak yang Terima Koin:</label>
+                    <select id="giftTargetSlot">
+                        <option value="1">Kotak 1</option><option value="2">Kotak 2</option>
+                        <option value="3">Kotak 3</option><option value="4">Kotak 4</option>
+                        <option value="5">Kotak 5</option><option value="6">Kotak 6</option>
+                        <option value="7">Kotak 7</option><option value="8">Kotak 8</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Poin Koin Gift (Manual):</label>
+                    <input type="number" id="manualPointInput" value="44999">
+                </div>
+            </div>
+
+            <button class="btn-gold" style="width:100%; margin-top:8px;" onclick="sendGiftAnimation()">🎁 KIRIM ANIMASI KE DISPLAY</button>
+        </div>
+
     </div>
+
+    <!-- Canvas internal untuk transfer kamera tanpa lag -->
+    <canvas id="camCanvas" width="360" height="640" style="display:none;"></canvas>
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
 
-        function sendCameraAction(action) {
-            channel.postMessage({
-                type: 'HOST_CAMERA_ACTION',
-                action: action
-            });
+        // State penyimpanan data kotak 1 - 8
+        const slotData = {
+            1: null, 2: null, 3: null, 4: null,
+            5: null, 6: null, 7: null, 8: null
+        };
+
+        let currentDetectedProfile = null;
+
+        // Render daftar slot untuk turunkan manual
+        function renderSlotList() {
+            const container = document.getElementById('slotManagerContainer');
+            container.innerHTML = '';
+            for (let i = 1; i <= 8; i++) {
+                const s = slotData[i];
+                const name = s ? s.name : '<span style="color:#666;">(Kosong)</span>';
+                container.innerHTML += `
+                    <div class="slot-item">
+                        <div class="slot-item-info"><b>Kotak ${i}:</b> ${name}</div>
+                        <button class="btn-red" style="font-size:0.7rem; padding: 4px 8px;" onclick="clearSingleSlot(${i})">Turunkan</button>
+                    </div>
+                `;
+            }
+        }
+        renderSlotList();
+
+        // ================= 1. KAMERA HOST =================
+        let camStream = null;
+        let camInterval = null;
+
+        async function startCamera() {
+            try {
+                camStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 480 }, height: { ideal: 640 }, facingMode: 'user' },
+                    audio: false
+                });
+
+                const preview = document.getElementById('camPreviewVideo');
+                preview.srcObject = camStream;
+                preview.style.display = 'block';
+                document.getElementById('camPlaceholder').style.display = 'none';
+
+                document.getElementById('btnStartCam').style.display = 'none';
+                document.getElementById('btnStopCam').style.display = 'inline-block';
+
+                const canvas = document.getElementById('camCanvas');
+                const ctx = canvas.getContext('2d');
+
+                camInterval = setInterval(() => {
+                    if (preview.readyState >= preview.HAVE_CURRENT_DATA) {
+                        ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
+                        const frameData = canvas.toDataURL('image/jpeg', 0.6);
+                        channel.postMessage({ type: 'HOST_CAM_FRAME', frame: frameData });
+                    }
+                }, 33); // 30 FPS jernih
+            } catch (err) {
+                alert("Izin kamera ditolak atau tidak ditemukan: " + err.message);
+            }
         }
 
-        function updateHostName() {
-            const name = document.getElementById('hostName').value;
-            channel.postMessage({ type: 'UPDATE_HOST_LABEL', label: name });
+        function stopCamera() {
+            if (camInterval) { clearInterval(camInterval); camInterval = null; }
+            if (camStream) {
+                camStream.getTracks().forEach(t => t.stop());
+                camStream = null;
+            }
+            const preview = document.getElementById('camPreviewVideo');
+            preview.srcObject = null;
+            preview.style.display = 'none';
+            document.getElementById('camPlaceholder').style.display = 'block';
+
+            document.getElementById('btnStartCam').style.display = 'inline-block';
+            document.getElementById('btnStopCam').style.display = 'none';
+
+            channel.postMessage({ type: 'HOST_CAM_STOP' });
         }
 
-        function setSlot() {
-            const slot = parseInt(document.getElementById('slotSelect').value);
+        // ================= 2. DETEKSI USERNAME TIKTOK (TikWm API) =================
+        async function detectTikTokUser() {
+            let uName = document.getElementById('tiktokUsernameInput').value.trim().replace('@', '');
+            if (!uName) return alert("Ketik username TikTok!");
+
+            const btn = event.target;
+            btn.innerText = "⏳ Mencari...";
+
+            try {
+                const res = await fetch(`https://www.tikwm.com/api/user/info?unique_id=${encodeURIComponent(uName)}`);
+                const json = await res.json();
+
+                if (json.code === 0 && json.data && json.data.user) {
+                    const u = json.data.user;
+                    currentDetectedProfile = {
+                        username: u.unique_id,
+                        nickname: u.nickname || u.unique_id,
+                        avatar: u.avatar || u.avatarLarger || u.avatarThumb
+                    };
+
+                    document.getElementById('prevImg').src = currentDetectedProfile.avatar;
+                    document.getElementById('prevNick').innerText = currentDetectedProfile.nickname;
+                    document.getElementById('prevUser').innerText = '@' + currentDetectedProfile.username;
+                    document.getElementById('profilePreviewBox').style.display = 'flex';
+                } else {
+                    alert("Akun @" + uName + " tidak ditemukan di TikTok.");
+                    currentDetectedProfile = null;
+                }
+            } catch (e) {
+                alert("Gagal koneksi ke API TikWm: " + e.message);
+                currentDetectedProfile = null;
+            } finally {
+                btn.innerText = "🔍 Cari di TikTok";
+            }
+        }
+
+        function placeUserToSlot() {
+            const slotNum = parseInt(document.getElementById('targetSlotSelect').value);
+            const coin = parseInt(document.getElementById('initCoinInput').value) || 0;
+            const rawUser = document.getElementById('tiktokUsernameInput').value.trim().replace('@', '');
+
+            const displayName = currentDetectedProfile ? currentDetectedProfile.nickname : (rawUser || `Slot ${slotNum}`);
+            const avatarUrl = currentDetectedProfile ? currentDetectedProfile.avatar : null;
+
+            slotData[slotNum] = { name: displayName, username: rawUser };
+
             channel.postMessage({
                 type: 'UPDATE_SLOT',
-                slotNum: slot,
-                nameInput: document.getElementById('slotName').value,
-                initialPoin: parseInt(document.getElementById('slotCoin').value) || 0,
-                profileImg: document.getElementById('slotImg').value || null
+                slotNum: slotNum,
+                nameInput: displayName,
+                initialPoin: coin,
+                profileImg: avatarUrl
             });
+
+            renderSlotList();
+            alert(`✅ Berhasil memasang ke Kotak ${slotNum}!`);
         }
 
-        function clearSlot() {
-            const slot = parseInt(document.getElementById('slotSelect').value);
+        // ================= 3. TURUNKAN KOTAK (MANUAL & OTOMATIS) =================
+        function clearSingleSlot(slotNum) {
+            slotData[slotNum] = null;
             channel.postMessage({
                 type: 'UPDATE_SLOT',
-                slotNum: slot,
+                slotNum: slotNum,
                 action: 'clear_slot'
+            });
+            renderSlotList();
+        }
+
+        function clearAllSlots() {
+            if (!confirm("Yakin ingin menurunkan semua orang dari Kotak 1 sampai 8?")) return;
+            for (let i = 1; i <= 8; i++) {
+                slotData[i] = null;
+                channel.postMessage({
+                    type: 'UPDATE_SLOT',
+                    slotNum: i,
+                    action: 'clear_slot'
+                });
+            }
+            renderSlotList();
+            alert("✅ Semua kotak 1 - 8 telah dibersihkan.");
+        }
+
+        // ================= 4 & 5. VIDEO ANIMASI GALERI & POIN MANUAL =================
+        function handleGalleryVideo(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                document.getElementById('giftUrlInput').value = url;
+            }
+        }
+
+        function sendGiftAnimation() {
+            const src = document.getElementById('giftUrlInput').value.trim();
+            const target = parseInt(document.getElementById('giftTargetSlot').value);
+            const point = parseInt(document.getElementById('manualPointInput').value) || 0;
+
+            if (!src) {
+                alert("Pilih file video animasi dari galeri atau masukkan URL video animasi!");
+                return;
+            }
+
+            channel.postMessage({
+                type: 'PLAY_GIFT',
+                src: src,
+                targetSlot: target,
+                increment: point
             });
         }
     </script>
