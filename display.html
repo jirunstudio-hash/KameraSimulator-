@@ -22,7 +22,7 @@
             position: relative; display: flex; justify-content: center; align-items: center; 
             border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
-        .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: none; }
+        .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
         .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
         .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
@@ -90,7 +90,7 @@
         <div class="live-layout">
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
-                <div id="hostPlaceholder" class="host-placeholder">Host Video / Kamera</div>
+                <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
                 <video id="hostVideo" class="host-video" loop autoplay playsinline muted></video>
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
@@ -138,24 +138,24 @@
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
-        let peerConnection = null;
+        // Variabel penampung stream kamera
+        window.hostCamStream = null;
 
         document.body.addEventListener('click', () => {
             const hVid = document.getElementById('hostVideo');
             if(hVid.paused && (hVid.src || hVid.srcObject)) hVid.play().catch(()=>{});
         }, { once: true });
 
-        // Pengelola Komunikasi BroadcastChannel
-        channel.onmessage = async (event) => {
+        channel.onmessage = (event) => {
             const data = event.data;
 
-            // 1. UPDATE LABEL NAMA HOST
             if (data.type === 'UPDATE_HOST_LABEL') {
                 document.getElementById('hostBottomText').innerText = data.label || 'Nama';
             } 
-            // 2. UPDATE VIDEO FILE (JIKA PAKAI FILE MP4)
             else if (data.type === 'UPDATE_HOST_VIDEO') {
-                closeWebRTC();
+                // Matikan kamera aktif jika operator mengganti ke file video
+                stopHostCamera();
+
                 const videoElem = document.getElementById('hostVideo');
                 const placeholder = document.getElementById('hostPlaceholder');
                 videoElem.srcObject = null;
@@ -167,21 +167,35 @@
                 placeholder.style.display = 'none';
                 videoElem.play().catch(() => {});
             } 
-            // 3. TERIMA STREAM KAMERA REALTIME DARI CONTROL (WebRTC)
-            else if (data.type === 'WEBRTC_OFFER') {
-                await handleWebRTCOffer(data.sdp);
-            }
-            else if (data.type === 'WEBRTC_ICE') {
-                if (peerConnection && data.candidate) {
-                    try {
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                    } catch (e) {}
+            // PERINTAH DARI PANEL KONTROL UNTUK MENGAKTIFKAN/MEMATIKAN KAMERA
+            else if (data.type === 'HOST_CAMERA_ACTION') {
+                const videoElem = document.getElementById('hostVideo');
+                const placeholder = document.getElementById('hostPlaceholder');
+
+                if (data.action === 'start') {
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        navigator.mediaDevices.getUserMedia({ 
+                            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, 
+                            audio: false 
+                        })
+                        .then((stream) => {
+                            window.hostCamStream = stream;
+                            videoElem.src = "";
+                            videoElem.srcObject = stream;
+                            videoElem.style.display = 'block';
+                            placeholder.style.display = 'none';
+                            videoElem.play().catch(() => {});
+                        })
+                        .catch((err) => {
+                            alert("Gagal mengakses kamera: " + err.message);
+                        });
+                    } else {
+                        alert("Browser membatasi kamera pada file://. Buka project menggunakan Live Server/Localhost.");
+                    }
+                } else if (data.action === 'stop') {
+                    stopHostCamera();
                 }
             }
-            else if (data.type === 'STOP_HOST_CAMERA') {
-                closeWebRTC();
-            }
-            // 4. UPDATE KOMAL SLOT
             else if (data.type === 'UPDATE_SLOT') {
                 const { slotNum, nameInput, initialPoin, profileImg, action } = data;
                 const slotBox = document.getElementById(`slot-${slotNum}`);
@@ -227,7 +241,6 @@
                     imgElem.style.display = 'block';
                 }
             }
-            // 5. TRIGGER ANIMASI GIFT CHROMA KEY
             else if (data.type === 'PLAY_GIFT') {
                 const targetSlot = data.targetSlot;
                 if (targetSlot && slotPoints[targetSlot] !== undefined) {
@@ -238,45 +251,15 @@
             }
         };
 
-        // Fungsi penerima WebRTC stream
-        async function handleWebRTCOffer(offerSdp) {
-            closeWebRTC();
-            peerConnection = new RTCPeerConnection();
-
-            peerConnection.ontrack = (event) => {
-                const videoElem = document.getElementById('hostVideo');
-                const placeholder = document.getElementById('hostPlaceholder');
-                videoElem.src = "";
-                videoElem.srcObject = event.streams[0];
-                videoElem.style.display = 'block';
-                placeholder.style.display = 'none';
-                videoElem.play().catch(() => {});
-            };
-
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    channel.postMessage({ type: 'WEBRTC_ICE', candidate: event.candidate });
-                }
-            };
-
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(offerSdp));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-
-            channel.postMessage({ type: 'WEBRTC_ANSWER', sdp: answer });
-        }
-
-        function closeWebRTC() {
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
+        function stopHostCamera() {
+            if (window.hostCamStream) {
+                window.hostCamStream.getTracks().forEach(track => track.stop());
+                window.hostCamStream = null;
             }
             const videoElem = document.getElementById('hostVideo');
-            if (videoElem.srcObject) {
-                videoElem.srcObject = null;
-                videoElem.style.display = 'none';
-                document.getElementById('hostPlaceholder').style.display = 'block';
-            }
+            videoElem.srcObject = null;
+            videoElem.style.display = 'none';
+            document.getElementById('hostPlaceholder').style.display = 'block';
         }
 
         function formatPoin(val) {
@@ -288,7 +271,7 @@
             return val.toString();
         }
 
-        // Chroma Key HD Engine
+        // Fungsi Chroma Key HD Ultra Bersih Asli
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
