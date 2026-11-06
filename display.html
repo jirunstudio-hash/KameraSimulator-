@@ -11,23 +11,29 @@
         .phone-screen { 
             height: 100vh; width: 100vw; max-width: 420px; max-height: 840px;
             background: #000; position: relative; overflow: hidden; display: flex; 
-            justify-content: center; align-items: flex-start; padding: 10px 10px 0 10px; 
+            flex-direction: column; justify-content: flex-start; align-items: center; padding: 10px 10px 0 10px; 
             box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
+        /* AREA ATAS: HOST & KOTAK 1 - 8 (PERSIS FOTO) */
         .live-layout { display: flex; gap: 8px; width: 100%; max-width: 400px; z-index: 10; align-items: stretch; }
 
         .host-box { 
-            flex: 1; height: auto; background: #16161c; border-radius: 12px; overflow: hidden; 
+            flex: 1; height: auto; min-height: 380px; background: #16161c; border-radius: 12px; overflow: hidden; 
             position: relative; display: flex; justify-content: center; align-items: center; 
-            border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
         .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
         #hostCameraImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: none; }
-        .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
+        .host-placeholder { color: #555; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
+        /* BADGE HOST EMAS KHAS TIKTOK (SESUAI FOTO) */
         .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
-        .blue-host-badge { background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-size: 0.5rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .gold-host-badge { 
+            background: linear-gradient(135deg, #e5a93c 0%, #d48b17 100%); 
+            color: #fff; font-size: 0.55rem; font-weight: 800; padding: 2px 7px; 
+            border-radius: 5px; display: flex; align-items: center; gap: 3px;
+        }
 
         .host-bottom-pill { 
             position: absolute; bottom: 8px; left: 8px; max-width: calc(100% - 16px);
@@ -36,6 +42,7 @@
         }
         .host-bottom-text { font-size: 0.55rem; color: #fff; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* GRID KOMAL 2 KOLOM 4 BARIS (KOTAK 1 - 8) */
         .komal-grid { width: 190px; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); gap: 6px; flex-shrink: 0; }
 
         .slot-box { 
@@ -46,33 +53,33 @@
         }
         
         .slot-box.active-media { border: 1.5px solid #666666 !important; }
-        
         .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 3; border: 2px solid rgba(255, 255, 255, 0.2); }
 
-        .slot-icon { color: #555; font-size: 0.9rem; margin-bottom: 2px; font-weight: 900; z-index: 2; -webkit-text-stroke: 0.4px #555; }
-        .slot-req { color: #777; font-size: 0.45rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; z-index: 2; }
+        /* ICON & TEKS PERMINTAAN SESUAI FOTO */
+        .slot-icon { color: #666; font-size: 1rem; margin-bottom: 2px; font-weight: 800; z-index: 2; }
+        .slot-req { color: #888; font-size: 0.5rem; font-weight: 600; letter-spacing: 0.2px; z-index: 2; }
 
         .slot-coin-badge { 
-            position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 2px; 
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 1px 4px; 
-            border-radius: 8px; z-index: 6; border: 1px solid rgba(255,255,255,0.1);
+            position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; 
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 1.5px 5px; 
+            border-radius: 10px; z-index: 6; border: 1px solid rgba(255,255,255,0.12);
         }
-        .blue-star-circle { width: 12px; height: 12px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .star-icon-svg { width: 8px; height: 8px; fill: #fff; }
-        .coin-count { font-size: 0.45rem; color: #fff; font-weight: 700; }
+        .blue-star-circle { width: 11px; height: 11px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .star-icon-svg { width: 7px; height: 7px; fill: #fff; }
+        .coin-count { font-size: 0.48rem; color: #fff; font-weight: 700; }
 
         .slot-name-pill { 
-            position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 28px);
+            position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 26px);
             display: flex; align-items: center; gap: 2px; z-index: 5; 
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
         }
         .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; -webkit-text-stroke: 0.4px #fff; flex-shrink: 0; }
+        .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; flex-shrink: 0; }
         
         .mic-container { 
             position: absolute; bottom: 4px; right: 4px; z-index: 5;
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); border-radius: 4px;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); border-radius: 4px;
         }
         .mic-icon-svg { width: 9px; height: 9px; fill: #fff; }
         .mic-mute-line { 
@@ -80,101 +87,42 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        /* ===== SISTEM RASIO ASLI TIKTOK LIVE (9:16 FULL OVERLAY) ===== */
+        /* ===== AREA VIDEO GIFT SETENGAH LAYAR BAWAH (ANTI GARIS KAKU) ===== */
         .gift-overlay { 
             position: absolute; 
-            top: 0; 
+            bottom: 0; 
             left: 0; 
             width: 100%; 
-            height: 100%; 
-            z-index: 40; 
+            height: 50%; /* Tepat di setengah layar bagian bawah persis foto Singa */
+            z-index: 30; 
             pointer-events: none; 
             display: none; 
             background: transparent; 
+
+            /* MENGHILANGKAN GARIS KAKU DENGAN GRADASI TRANSPARAN HALUS (SOFT BLEND) */
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 90%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 90%, transparent 100%);
         }
         #giftVideo { display: none; }
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            object-fit: cover; /* Standar sistem 9:16 TikTok */
+            object-fit: cover; /* Pas mengisi area bawah tanpa gepeng */
             object-position: center bottom;
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
             image-rendering: -webkit-optimize-contrast; 
-        }
-
-        /* BANNER NOTIFIKASI GIFT KHAS TIKTOK LIVE */
-        .tiktok-gift-banner {
-            position: absolute;
-            bottom: 60px;
-            left: 12px;
-            z-index: 45;
-            display: none;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.68);
-            backdrop-filter: blur(8px);
-            padding: 4px 14px 4px 5px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 215, 0, 0.5);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            animation: slideInGift 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        @keyframes slideInGift {
-            0% { transform: translateX(-120px); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-        .gift-banner-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid #ffd700;
-            object-fit: cover;
-            background: #222;
-        }
-        .gift-banner-text {
-            display: flex;
-            flex-direction: column;
-        }
-        .gift-banner-text b {
-            font-size: 0.65rem;
-            color: #fff;
-            max-width: 95px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .gift-banner-text span {
-            font-size: 0.5rem;
-            color: #ffd700;
-            font-weight: 700;
-        }
-        .gift-banner-combo {
-            display: flex;
-            align-items: baseline;
-            font-style: italic;
-            font-weight: 900;
-            color: #ffd700;
-            text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 2px 4px #000;
-            margin-left: 6px;
-            animation: bounceCombo 0.4s ease-out;
-        }
-        .combo-text { font-size: 0.85rem; }
-        .combo-num { font-size: 1.25rem; }
-        @keyframes bounceCombo {
-            0% { transform: scale(0.3); }
-            60% { transform: scale(1.35); }
-            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
     <div class="phone-screen" id="displayContainer">
+        <!-- AREA ATAS (HOST & KOTAK 1 - 8) -->
         <div class="live-layout">
             <div class="host-box" id="hostBox">
-                <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
+                <div class="host-top-pill"><span class="gold-host-badge">Host</span></div>
                 <div id="hostPlaceholder" class="host-placeholder">Host Video / Kamera</div>
                 <video id="hostVideo" class="host-video" loop autoplay playsinline muted></video>
                 <img id="hostCameraImg" alt="Host Cam">
@@ -193,7 +141,7 @@
                                     <span class="coin-count" id="coincount-slot-${i}">0</span>
                                 </div>
                                 <span class="slot-icon" id="icon-${i}">+</span>
-                                <span class="slot-req" id="req-${i}">Request</span>
+                                <span class="slot-req" id="req-${i}">Permintaan</span>
                                 
                                 <img id="img-slot-${i}" class="slot-circle-img" referrerpolicy="no-referrer">
                                 
@@ -213,19 +161,7 @@
             </div>
         </div>
 
-        <!-- Banner Combo Gift TikTok Asli -->
-        <div class="tiktok-gift-banner" id="tiktokGiftBanner">
-            <img id="giftBannerAvatar" src="" class="gift-banner-avatar" referrerpolicy="no-referrer">
-            <div class="gift-banner-text">
-                <b id="giftBannerName">User</b>
-                <span>Menerima Gift</span>
-            </div>
-            <div class="gift-banner-combo">
-                <span class="combo-text">x</span><span class="combo-num" id="giftBannerCombo">1</span>
-            </div>
-        </div>
-
-        <!-- Layer Animasi Gift Full 9:16 -->
+        <!-- AREA BAWAH: ANIMASI GIFT PERSIS FOTO (SEPARUH BAWAH TANPA GARIS KAKU) -->
         <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
@@ -325,46 +261,13 @@
             }
             else if (data.type === 'PLAY_GIFT') {
                 const targetSlot = data.targetSlot;
-                let targetName = `Slot ${targetSlot}`;
-                let targetAvatar = "";
-
                 if (targetSlot && slotPoints[targetSlot] !== undefined) {
                     slotPoints[targetSlot] += (data.increment || 44999);
                     document.getElementById(`coincount-slot-${targetSlot}`).innerText = formatPoin(slotPoints[targetSlot]);
-                    
-                    const nameElem = document.getElementById(`nametext-slot-${targetSlot}`);
-                    const imgElem = document.getElementById(`img-slot-${targetSlot}`);
-                    if (nameElem && nameElem.innerText) targetName = nameElem.innerText;
-                    if (imgElem && imgElem.src) targetAvatar = imgElem.src;
                 }
-
-                // Tampilkan Banner Gift TikTok Asli
-                showGiftBanner(targetName, targetAvatar);
-
-                // Mainkan Animasi Gift Rasio 9:16 Sistem TikTok
                 playGiftVideo(data.src);
             }
         };
-
-        function showGiftBanner(name, avatar) {
-            const banner = document.getElementById('tiktokGiftBanner');
-            const bName = document.getElementById('giftBannerName');
-            const bAvatar = document.getElementById('giftBannerAvatar');
-
-            bName.innerText = name;
-            if (avatar) {
-                bAvatar.src = avatar;
-                bAvatar.style.display = 'block';
-            } else {
-                bAvatar.style.display = 'none';
-            }
-
-            banner.style.display = 'flex';
-        }
-
-        function hideGiftBanner() {
-            document.getElementById('tiktokGiftBanner').style.display = 'none';
-        }
 
         function formatPoin(val) {
             if (val >= 1000000) {
@@ -375,7 +278,7 @@
             return val.toString();
         }
 
-        // Engine Chroma Key HD TikTok Asli (Presisi 9:16)
+        // CHROMA KEY ULTRA BERSIH + SOFT BLEND ANTI GARIS KAKU
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -393,21 +296,13 @@
             giftVideo.currentTime = 0;
 
             giftVideo.play().then(() => {
-                // Auto penyesuaian rasio video
-                if (giftVideo.videoHeight >= giftVideo.videoWidth) {
-                    // Video 9:16 Vertikal -> Mengisi Layar Penuh (Cover 100%)
-                    canvas.style.objectFit = 'cover';
-                    canvas.style.objectPosition = 'center bottom';
-                } else {
-                    // Video 16:9 Horizontal -> Pas di Layar Panggung Tengah/Bawah
-                    canvas.style.objectFit = 'contain';
-                    canvas.style.objectPosition = 'center bottom';
-                }
+                // Posisi pas di bagian bawah panggung persis seperti foto singa
+                canvas.style.objectFit = 'cover';
+                canvas.style.objectPosition = 'center bottom';
 
                 function renderFrame() {
                     if (giftVideo.paused || giftVideo.ended) {
                         overlayContainer.style.display = 'none';
-                        hideGiftBanner();
                         return;
                     }
                     if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
@@ -432,13 +327,13 @@
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
-                                // Deteksi Green Screen Halus Tanpa Gerigi
+                                // Deteksi Green Screen dengan kelembutan tepi
                                 if (greenDiff > 12 && g > 40) {
                                     let alphaFactor = Math.min(1, (greenDiff - 12) / 25);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } 
                                 
-                                // Pembersihan total sisa bayangan hijau pinggir (Green Spill)
+                                // Bersihkan sisa hijau di tepi objek agar menyatu alami
                                 if (pixels[i + 3] > 0 && g > (r + b) * 0.55) {
                                     pixels[i + 1] = Math.floor((r + b) / 2);
                                 }
@@ -451,7 +346,6 @@
                 requestAnimationFrame(renderFrame);
             }).catch(() => {
                 overlayContainer.style.display = 'none';
-                hideGiftBanner();
             });
         }
     </script>
