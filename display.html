@@ -80,14 +80,14 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        /* AREA ANIMASI GIFT KHAS TIKTOK: SETENGAH LAYAR BAWAH */
+        /* ===== SISTEM RASIO ASLI TIKTOK LIVE (9:16 FULL OVERLAY) ===== */
         .gift-overlay { 
             position: absolute; 
-            bottom: 0; 
+            top: 0; 
             left: 0; 
             width: 100%; 
-            height: 52%; 
-            z-index: 30; 
+            height: 100%; 
+            z-index: 40; 
             pointer-events: none; 
             display: none; 
             background: transparent; 
@@ -96,12 +96,76 @@
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; 
             position: absolute; 
-            bottom: 0; 
+            top: 0; 
             left: 0; 
+            object-fit: cover; /* Standar sistem 9:16 TikTok */
+            object-position: center bottom;
             image-rendering: -webkit-optimize-contrast; 
-            image-rendering: crisp-edges; 
+        }
+
+        /* BANNER NOTIFIKASI GIFT KHAS TIKTOK LIVE */
+        .tiktok-gift-banner {
+            position: absolute;
+            bottom: 60px;
+            left: 12px;
+            z-index: 45;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.68);
+            backdrop-filter: blur(8px);
+            padding: 4px 14px 4px 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            animation: slideInGift 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        @keyframes slideInGift {
+            0% { transform: translateX(-120px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        .gift-banner-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ffd700;
+            object-fit: cover;
+            background: #222;
+        }
+        .gift-banner-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .gift-banner-text b {
+            font-size: 0.65rem;
+            color: #fff;
+            max-width: 95px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .gift-banner-text span {
+            font-size: 0.5rem;
+            color: #ffd700;
+            font-weight: 700;
+        }
+        .gift-banner-combo {
+            display: flex;
+            align-items: baseline;
+            font-style: italic;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 2px 4px #000;
+            margin-left: 6px;
+            animation: bounceCombo 0.4s ease-out;
+        }
+        .combo-text { font-size: 0.85rem; }
+        .combo-num { font-size: 1.25rem; }
+        @keyframes bounceCombo {
+            0% { transform: scale(0.3); }
+            60% { transform: scale(1.35); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -149,6 +213,19 @@
             </div>
         </div>
 
+        <!-- Banner Combo Gift TikTok Asli -->
+        <div class="tiktok-gift-banner" id="tiktokGiftBanner">
+            <img id="giftBannerAvatar" src="" class="gift-banner-avatar" referrerpolicy="no-referrer">
+            <div class="gift-banner-text">
+                <b id="giftBannerName">User</b>
+                <span>Menerima Gift</span>
+            </div>
+            <div class="gift-banner-combo">
+                <span class="combo-text">x</span><span class="combo-num" id="giftBannerCombo">1</span>
+            </div>
+        </div>
+
+        <!-- Layer Animasi Gift Full 9:16 -->
         <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
@@ -248,13 +325,46 @@
             }
             else if (data.type === 'PLAY_GIFT') {
                 const targetSlot = data.targetSlot;
+                let targetName = `Slot ${targetSlot}`;
+                let targetAvatar = "";
+
                 if (targetSlot && slotPoints[targetSlot] !== undefined) {
                     slotPoints[targetSlot] += (data.increment || 44999);
                     document.getElementById(`coincount-slot-${targetSlot}`).innerText = formatPoin(slotPoints[targetSlot]);
+                    
+                    const nameElem = document.getElementById(`nametext-slot-${targetSlot}`);
+                    const imgElem = document.getElementById(`img-slot-${targetSlot}`);
+                    if (nameElem && nameElem.innerText) targetName = nameElem.innerText;
+                    if (imgElem && imgElem.src) targetAvatar = imgElem.src;
                 }
-                playGiftVideo(data.src, data.sizeMode);
+
+                // Tampilkan Banner Gift TikTok Asli
+                showGiftBanner(targetName, targetAvatar);
+
+                // Mainkan Animasi Gift Rasio 9:16 Sistem TikTok
+                playGiftVideo(data.src);
             }
         };
+
+        function showGiftBanner(name, avatar) {
+            const banner = document.getElementById('tiktokGiftBanner');
+            const bName = document.getElementById('giftBannerName');
+            const bAvatar = document.getElementById('giftBannerAvatar');
+
+            bName.innerText = name;
+            if (avatar) {
+                bAvatar.src = avatar;
+                bAvatar.style.display = 'block';
+            } else {
+                bAvatar.style.display = 'none';
+            }
+
+            banner.style.display = 'flex';
+        }
+
+        function hideGiftBanner() {
+            document.getElementById('tiktokGiftBanner').style.display = 'none';
+        }
 
         function formatPoin(val) {
             if (val >= 1000000) {
@@ -265,19 +375,13 @@
             return val.toString();
         }
 
-        // Engine Chroma Key HD (Setengah Layar Bawah)
-        function playGiftVideo(src, sizeMode) {
+        // Engine Chroma Key HD TikTok Asli (Presisi 9:16)
+        function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
             const canvas = document.getElementById('giftCanvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
             
-            if (sizeMode === 'full') {
-                overlayContainer.style.height = '100%';
-            } else {
-                overlayContainer.style.height = '52%';
-            }
-
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
@@ -289,9 +393,21 @@
             giftVideo.currentTime = 0;
 
             giftVideo.play().then(() => {
+                // Auto penyesuaian rasio video
+                if (giftVideo.videoHeight >= giftVideo.videoWidth) {
+                    // Video 9:16 Vertikal -> Mengisi Layar Penuh (Cover 100%)
+                    canvas.style.objectFit = 'cover';
+                    canvas.style.objectPosition = 'center bottom';
+                } else {
+                    // Video 16:9 Horizontal -> Pas di Layar Panggung Tengah/Bawah
+                    canvas.style.objectFit = 'contain';
+                    canvas.style.objectPosition = 'center bottom';
+                }
+
                 function renderFrame() {
                     if (giftVideo.paused || giftVideo.ended) {
                         overlayContainer.style.display = 'none';
+                        hideGiftBanner();
                         return;
                     }
                     if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
@@ -316,11 +432,13 @@
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
+                                // Deteksi Green Screen Halus Tanpa Gerigi
                                 if (greenDiff > 12 && g > 40) {
                                     let alphaFactor = Math.min(1, (greenDiff - 12) / 25);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } 
                                 
+                                // Pembersihan total sisa bayangan hijau pinggir (Green Spill)
                                 if (pixels[i + 3] > 0 && g > (r + b) * 0.55) {
                                     pixels[i + 1] = Math.floor((r + b) / 2);
                                 }
@@ -333,6 +451,7 @@
                 requestAnimationFrame(renderFrame);
             }).catch(() => {
                 overlayContainer.style.display = 'none';
+                hideGiftBanner();
             });
         }
     </script>
