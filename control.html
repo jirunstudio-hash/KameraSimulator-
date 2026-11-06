@@ -21,22 +21,19 @@
         .btn-green { background: #10b981; } .btn-green:hover { background: #059669; }
         .btn-red { background: #ef4444; } .btn-red:hover { background: #dc2626; }
         .btn-blue { background: #2563eb; } .btn-blue:hover { background: #1d4ed8; }
-        .btn-tiktok { background: #ff0050; } .btn-tiktok:hover { background: #e00045; }
+        .btn-tiktok { background: #ff0050; color:#fff; } .btn-tiktok:hover { background: #e00045; }
         .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; font-size: 0.95rem; padding: 12px; }
         .btn-gold:hover { filter: brightness(1.1); }
 
-        /* Preview Kamera */
         .cam-preview-box { width: 100%; height: 140px; background: #000; border-radius: 8px; border: 1px dashed #444; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 8px; }
         #camPreviewVideo { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* Preview Profil TikWm */
         .profile-preview { display: none; align-items: center; gap: 10px; background: #222230; padding: 8px 12px; border-radius: 8px; margin-top: 6px; border: 1px solid #38384a; }
         .profile-preview img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #ff0050; }
         .profile-meta { display: flex; flex-direction: column; font-size: 0.8rem; }
         .profile-meta b { color: #fff; }
         .profile-meta span { color: #888; font-size: 0.7rem; }
 
-        /* Slot Manager Grid */
         .slot-manager-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
         .slot-item { background: #20202c; border: 1px solid #2d2d3f; border-radius: 8px; padding: 8px; display: flex; align-items: center; justify-content: space-between; }
         .slot-item-info { font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
@@ -46,7 +43,7 @@
 
     <div class="dashboard">
 
-        <!-- 1. FITUR AKTIFKAN KAMERA HOST -->
+        <!-- 1. KAMERA HOST REALTIME -->
         <div class="card">
             <h3>1. Kamera Host Realtime</h3>
             <div style="display:flex; gap: 8px;">
@@ -59,21 +56,21 @@
             </div>
         </div>
 
-        <!-- 2. FITUR DETEKSI TIKTOK (TikWm API) & PASANG KOTAK 1-8 -->
+        <!-- 2. DETEKSI AKUN TIKTOK ASLI & PASANG KE KOTAK -->
         <div class="card">
             <h3>2. Deteksi Akun TikTok & Pasang ke Kotak</h3>
             
             <div class="form-group">
-                <label>Ketik Username TikTok (Auto-Deteksi Profil via TikWm):</label>
+                <label>Ketik Username TikTok (Cari Akun Asli):</label>
                 <div style="display:flex; gap:6px;">
-                    <input type="text" id="tiktokUsernameInput" placeholder="Contoh: fazgading / @user" style="flex:1;">
-                    <button class="btn-tiktok" onclick="detectTikTokUser()">🔍 Cari di TikTok</button>
+                    <input type="text" id="tiktokUsernameInput" placeholder="Contoh: fazgading atau @user" style="flex:1;">
+                    <button id="btnDetectTikTok" class="btn-tiktok" onclick="detectTikTokUser()">🔍 Cari di TikTok</button>
                 </div>
             </div>
 
-            <!-- Box Preview Hasil API TikWm -->
+            <!-- Preview Data Asli -->
             <div id="profilePreviewBox" class="profile-preview">
-                <img id="prevImg" src="" alt="Avatar">
+                <img id="prevImg" src="" alt="Avatar" referrerpolicy="no-referrer">
                 <div class="profile-meta">
                     <b id="prevNick">Nama</b>
                     <span id="prevUser">@username</span>
@@ -99,31 +96,30 @@
             <button class="btn-green" style="width:100%; margin-top:4px;" onclick="placeUserToSlot()">➕ Pasang ke Kotak Terpilih</button>
         </div>
 
-        <!-- 3. FITUR TURUNKAN KOTAK 1-8 (MANUAL & OTOMATIS SEMUA) -->
+        <!-- 3. KELOLA & TURUNKAN KOTAK 1-8 -->
         <div class="card">
             <h3>
                 <span>3. Kelola & Turunkan Kotak (1 - 8)</span>
                 <button class="btn-red" style="font-size:0.75rem; padding: 4px 10px;" onclick="clearAllSlots()">⚠️ TURUNKAN SEMUA KOTAK</button>
             </h3>
             
-            <div class="slot-manager-grid" id="slotManagerContainer">
-                <!-- Diisi otomatis oleh JavaScript -->
-            </div>
+            <div class="slot-manager-grid" id="slotManagerContainer"></div>
         </div>
 
-        <!-- 4 & 5. FITUR VIDEO ANIMASI DARI GALERI & MASUKAN POIN MANUAL -->
+        <!-- 4 & 5. VIDEO ANIMASI GALERI & POIN MANUAL -->
         <div class="card" style="border: 1px solid #f59e0b;">
-            <h3 style="color:#f59e0b;">4 & 5. Kirim Video Animasi Gift & Poin Manual</h3>
+            <h3 style="color:#f59e0b;">4 & 5. Video Animasi Galeri & Poin Manual</h3>
 
             <div class="form-group">
                 <label>Pilih Video Animasi dari Galeri HP/Laptop (.mp4 Green Screen):</label>
                 <input type="file" id="giftGalleryFile" accept="video/mp4,video/*" onchange="handleGalleryVideo(event)">
-                <input type="text" id="giftUrlInput" placeholder="Atau paste URL link video..." style="margin-top:4px;">
+                <span id="galleryFileStatus" style="font-size:0.7rem; color:#10b981; margin-top:2px;"></span>
+                <input type="text" id="giftUrlInput" placeholder="Atau paste link URL video animasi..." style="margin-top:4px;">
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="form-group">
-                    <label>Target Kotak yang Terima Koin:</label>
+                    <label>Target Kotak Penerima Koin:</label>
                     <select id="giftTargetSlot">
                         <option value="1">Kotak 1</option><option value="2">Kotak 2</option>
                         <option value="3">Kotak 3</option><option value="4">Kotak 4</option>
@@ -137,26 +133,32 @@
                 </div>
             </div>
 
+            <div class="form-group" style="margin-top: 4px;">
+                <label>Ukuran Tampilan di Display:</label>
+                <select id="giftSizeMode">
+                    <option value="half" selected>Setengah Layar Bawah (Khas Animasi TikTok Live)</option>
+                    <option value="full">Layar Penuh (Full Screen)</option>
+                </select>
+            </div>
+
             <button class="btn-gold" style="width:100%; margin-top:8px;" onclick="sendGiftAnimation()">🎁 KIRIM ANIMASI KE DISPLAY</button>
         </div>
 
     </div>
 
-    <!-- Canvas internal untuk transfer kamera tanpa lag -->
     <canvas id="camCanvas" width="360" height="640" style="display:none;"></canvas>
 
     <script>
         const channel = new BroadcastChannel('tiktok_live_channel');
 
-        // State penyimpanan data kotak 1 - 8
         const slotData = {
             1: null, 2: null, 3: null, 4: null,
             5: null, 6: null, 7: null, 8: null
         };
 
         let currentDetectedProfile = null;
+        let selectedGiftBase64 = "";
 
-        // Render daftar slot untuk turunkan manual
         function renderSlotList() {
             const container = document.getElementById('slotManagerContainer');
             container.innerHTML = '';
@@ -173,7 +175,7 @@
         }
         renderSlotList();
 
-        // ================= 1. KAMERA HOST =================
+        // ================= 1. KAMERA REALTIME =================
         let camStream = null;
         let camInterval = null;
 
@@ -201,7 +203,7 @@
                         const frameData = canvas.toDataURL('image/jpeg', 0.6);
                         channel.postMessage({ type: 'HOST_CAM_FRAME', frame: frameData });
                     }
-                }, 33); // 30 FPS jernih
+                }, 33);
             } catch (err) {
                 alert("Izin kamera ditolak atau tidak ditemukan: " + err.message);
             }
@@ -224,46 +226,108 @@
             channel.postMessage({ type: 'HOST_CAM_STOP' });
         }
 
-        // ================= 2. DETEKSI USERNAME TIKTOK (TikWm API) =================
+        // ================= 2. DETEKSI AKUN TIKTOK (MULTI-API TINGKAT TINGGI & AKURAT) =================
         async function detectTikTokUser() {
-            let uName = document.getElementById('tiktokUsernameInput').value.trim().replace('@', '');
-            if (!uName) return alert("Ketik username TikTok!");
+            let rawInput = document.getElementById('tiktokUsernameInput').value.trim();
+            if (!rawInput) return alert("Silakan ketik username TikTok terlebih dahulu!");
 
-            const btn = event.target;
-            btn.innerText = "⏳ Mencari...";
+            const cleanUser = rawInput.replace(/^@+/, '').trim();
+            const btn = document.getElementById('btnDetectTikTok');
+            btn.innerText = "⏳ Mencari Data Asli...";
+            btn.disabled = true;
 
+            let result = null;
+
+            // JALUR 1: TikWM Direct API
             try {
-                const res = await fetch(`https://www.tikwm.com/api/user/info?unique_id=${encodeURIComponent(uName)}`);
-                const json = await res.json();
-
-                if (json.code === 0 && json.data && json.data.user) {
-                    const u = json.data.user;
-                    currentDetectedProfile = {
+                const res1 = await fetch(`https://www.tikwm.com/api/user/info?unique_id=${encodeURIComponent(cleanUser)}`);
+                const json1 = await res1.json();
+                if (json1.code === 0 && json1.data && json1.data.user) {
+                    const u = json1.data.user;
+                    result = {
                         username: u.unique_id,
                         nickname: u.nickname || u.unique_id,
-                        avatar: u.avatar || u.avatarLarger || u.avatarThumb
+                        avatar: u.avatarLarger || u.avatar || u.avatarThumb
                     };
-
-                    document.getElementById('prevImg').src = currentDetectedProfile.avatar;
-                    document.getElementById('prevNick').innerText = currentDetectedProfile.nickname;
-                    document.getElementById('prevUser').innerText = '@' + currentDetectedProfile.username;
-                    document.getElementById('profilePreviewBox').style.display = 'flex';
-                } else {
-                    alert("Akun @" + uName + " tidak ditemukan di TikTok.");
-                    currentDetectedProfile = null;
                 }
-            } catch (e) {
-                alert("Gagal koneksi ke API TikWm: " + e.message);
-                currentDetectedProfile = null;
-            } finally {
-                btn.innerText = "🔍 Cari di TikTok";
+            } catch (err1) {}
+
+            // JALUR 2: TikWM via AllOrigins Proxy
+            if (!result) {
+                try {
+                    const targetUrl = encodeURIComponent(`https://www.tikwm.com/api/user/info?unique_id=${cleanUser}`);
+                    const res2 = await fetch(`https://api.allorigins.win/get?url=${targetUrl}`);
+                    const json2 = await res2.json();
+                    const parsedData = JSON.parse(json2.contents);
+                    if (parsedData.code === 0 && parsedData.data && parsedData.data.user) {
+                        const u = parsedData.data.user;
+                        result = {
+                            username: u.unique_id,
+                            nickname: u.nickname || u.unique_id,
+                            avatar: u.avatarLarger || u.avatar || u.avatarThumb
+                        };
+                    }
+                } catch (err2) {}
             }
+
+            // JALUR 3: TikTok Official oEmbed API
+            if (!result) {
+                try {
+                    const res3 = await fetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${encodeURIComponent(cleanUser)}`);
+                    if (res3.ok) {
+                        const json3 = await res3.json();
+                        if (json3 && json3.author_name) {
+                            result = {
+                                username: json3.author_unique_id || cleanUser,
+                                nickname: json3.author_name || cleanUser,
+                                avatar: json3.thumbnail_url
+                            };
+                        }
+                    }
+                } catch (err3) {}
+            }
+
+            // JALUR 4: TikWM via CorsProxy.io Backup
+            if (!result) {
+                try {
+                    const res4 = await fetch(`https://corsproxy.io/?${encodeURIComponent(`https://www.tikwm.com/api/user/info?unique_id=${cleanUser}`)}`);
+                    const json4 = await res4.json();
+                    if (json4.code === 0 && json4.data && json4.data.user) {
+                        const u = json4.data.user;
+                        result = {
+                            username: u.unique_id,
+                            nickname: u.nickname || u.unique_id,
+                            avatar: u.avatarLarger || u.avatar || u.avatarThumb
+                        };
+                    }
+                } catch (err4) {}
+            }
+
+            // Evaluasi Hasil
+            if (result && result.avatar) {
+                currentDetectedProfile = result;
+                
+                const prevImg = document.getElementById('prevImg');
+                prevImg.src = result.avatar;
+                prevImg.referrerPolicy = "no-referrer";
+
+                document.getElementById('prevNick').innerText = result.nickname;
+                document.getElementById('prevUser').innerText = '@' + result.username;
+                document.getElementById('profilePreviewBox').style.display = 'flex';
+            } else {
+                alert(`⚠️ Akun TikTok "@${cleanUser}" tidak ditemukan. Pastikan penulisan username sudah benar.`);
+                currentDetectedProfile = null;
+                document.getElementById('profilePreviewBox').style.display = 'none';
+            }
+
+            btn.innerText = "🔍 Cari di TikTok";
+            btn.disabled = false;
         }
 
         function placeUserToSlot() {
             const slotNum = parseInt(document.getElementById('targetSlotSelect').value);
             const coin = parseInt(document.getElementById('initCoinInput').value) || 0;
-            const rawUser = document.getElementById('tiktokUsernameInput').value.trim().replace('@', '');
+            const rawUser = document.getElementById('tiktokUsernameInput').value.trim().replace(/^@+/, '');
 
             const displayName = currentDetectedProfile ? currentDetectedProfile.nickname : (rawUser || `Slot ${slotNum}`);
             const avatarUrl = currentDetectedProfile ? currentDetectedProfile.avatar : null;
@@ -279,10 +343,10 @@
             });
 
             renderSlotList();
-            alert(`✅ Berhasil memasang ke Kotak ${slotNum}!`);
+            alert(`✅ Berhasil dipasang ke Kotak ${slotNum}!`);
         }
 
-        // ================= 3. TURUNKAN KOTAK (MANUAL & OTOMATIS) =================
+        // ================= 3. TURUNKAN KOTAK =================
         function clearSingleSlot(slotNum) {
             slotData[slotNum] = null;
             channel.postMessage({
@@ -294,7 +358,7 @@
         }
 
         function clearAllSlots() {
-            if (!confirm("Yakin ingin menurunkan semua orang dari Kotak 1 sampai 8?")) return;
+            if (!confirm("Turunkan semua orang dari Kotak 1 sampai 8?")) return;
             for (let i = 1; i <= 8; i++) {
                 slotData[i] = null;
                 channel.postMessage({
@@ -304,25 +368,33 @@
                 });
             }
             renderSlotList();
-            alert("✅ Semua kotak 1 - 8 telah dibersihkan.");
+            alert("✅ Kotak 1 - 8 telah bersih.");
         }
 
         // ================= 4 & 5. VIDEO ANIMASI GALERI & POIN MANUAL =================
         function handleGalleryVideo(e) {
             const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                document.getElementById('giftUrlInput').value = url;
-            }
+            if (!file) return;
+
+            document.getElementById('galleryFileStatus').innerText = `⏳ Memproses: ${file.name}...`;
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                selectedGiftBase64 = ev.target.result;
+                document.getElementById('giftUrlInput').value = "";
+                document.getElementById('galleryFileStatus').innerText = `✅ Video galeri siap: ${file.name}`;
+            };
+            reader.readAsDataURL(file);
         }
 
         function sendGiftAnimation() {
-            const src = document.getElementById('giftUrlInput').value.trim();
+            const src = selectedGiftBase64 || document.getElementById('giftUrlInput').value.trim();
             const target = parseInt(document.getElementById('giftTargetSlot').value);
             const point = parseInt(document.getElementById('manualPointInput').value) || 0;
+            const sizeMode = document.getElementById('giftSizeMode').value;
 
             if (!src) {
-                alert("Pilih file video animasi dari galeri atau masukkan URL video animasi!");
+                alert("Pilih file video animasi dari galeri atau masukkan link video terlebih dahulu!");
                 return;
             }
 
@@ -330,7 +402,8 @@
                 type: 'PLAY_GIFT',
                 src: src,
                 targetSlot: target,
-                increment: point
+                increment: point,
+                sizeMode: sizeMode
             });
         }
     </script>
