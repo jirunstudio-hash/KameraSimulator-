@@ -23,6 +23,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
         .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
+        #hostCameraImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: none; }
         .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
         .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
@@ -90,8 +91,10 @@
         <div class="live-layout">
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="blue-host-badge">Host</span></div>
-                <div id="hostPlaceholder" class="host-placeholder">Host Video</div>
+                <div id="hostPlaceholder" class="host-placeholder">Host Video / Kamera</div>
                 <video id="hostVideo" class="host-video" loop autoplay playsinline muted></video>
+                <!-- Frame kamera real-time dari panel kontrol -->
+                <img id="hostCameraImg" alt="Host Cam">
                 <div class="host-bottom-pill"><span class="host-bottom-text" id="hostBottomText">Faz Gading</span></div>
             </div>
 
@@ -138,12 +141,9 @@
         const slotPoints = {};
         for(let i=1; i<=8; i++) slotPoints[i] = 0;
 
-        // Variabel penampung stream kamera
-        window.hostCamStream = null;
-
         document.body.addEventListener('click', () => {
             const hVid = document.getElementById('hostVideo');
-            if(hVid.paused && (hVid.src || hVid.srcObject)) hVid.play().catch(()=>{});
+            if(hVid.paused && hVid.src) hVid.play().catch(()=>{});
         }, { once: true });
 
         channel.onmessage = (event) => {
@@ -153,12 +153,9 @@
                 document.getElementById('hostBottomText').innerText = data.label || 'Nama';
             } 
             else if (data.type === 'UPDATE_HOST_VIDEO') {
-                // Matikan kamera aktif jika operator mengganti ke file video
-                stopHostCamera();
-
+                document.getElementById('hostCameraImg').style.display = 'none';
                 const videoElem = document.getElementById('hostVideo');
                 const placeholder = document.getElementById('hostPlaceholder');
-                videoElem.srcObject = null;
                 if(videoElem.src !== data.src) {
                     videoElem.src = data.src;
                     videoElem.load();
@@ -167,34 +164,24 @@
                 placeholder.style.display = 'none';
                 videoElem.play().catch(() => {});
             } 
-            // PERINTAH DARI PANEL KONTROL UNTUK MENGAKTIFKAN/MEMATIKAN KAMERA
-            else if (data.type === 'HOST_CAMERA_ACTION') {
-                const videoElem = document.getElementById('hostVideo');
+            // TERIMA STREAM FRAME KAMERA DARI CONTROL PANEL
+            else if (data.type === 'HOST_CAM_FRAME') {
+                const camImg = document.getElementById('hostCameraImg');
                 const placeholder = document.getElementById('hostPlaceholder');
+                const videoElem = document.getElementById('hostVideo');
 
-                if (data.action === 'start') {
-                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                        navigator.mediaDevices.getUserMedia({ 
-                            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, 
-                            audio: false 
-                        })
-                        .then((stream) => {
-                            window.hostCamStream = stream;
-                            videoElem.src = "";
-                            videoElem.srcObject = stream;
-                            videoElem.style.display = 'block';
-                            placeholder.style.display = 'none';
-                            videoElem.play().catch(() => {});
-                        })
-                        .catch((err) => {
-                            alert("Gagal mengakses kamera: " + err.message);
-                        });
-                    } else {
-                        alert("Browser membatasi kamera pada file://. Buka project menggunakan Live Server/Localhost.");
-                    }
-                } else if (data.action === 'stop') {
-                    stopHostCamera();
-                }
+                if (videoElem.style.display !== 'none') videoElem.style.display = 'none';
+                if (placeholder.style.display !== 'none') placeholder.style.display = 'none';
+
+                camImg.src = data.frame;
+                camImg.style.display = 'block';
+            }
+            else if (data.type === 'HOST_CAM_STOP') {
+                const camImg = document.getElementById('hostCameraImg');
+                const placeholder = document.getElementById('hostPlaceholder');
+                camImg.style.display = 'none';
+                camImg.src = "";
+                placeholder.style.display = 'block';
             }
             else if (data.type === 'UPDATE_SLOT') {
                 const { slotNum, nameInput, initialPoin, profileImg, action } = data;
@@ -251,17 +238,6 @@
             }
         };
 
-        function stopHostCamera() {
-            if (window.hostCamStream) {
-                window.hostCamStream.getTracks().forEach(track => track.stop());
-                window.hostCamStream = null;
-            }
-            const videoElem = document.getElementById('hostVideo');
-            videoElem.srcObject = null;
-            videoElem.style.display = 'none';
-            document.getElementById('hostPlaceholder').style.display = 'block';
-        }
-
         function formatPoin(val) {
             if (val >= 1000000) {
                 return (val / 1000000).toFixed(1).replace('.0', '') + 'M';
@@ -271,7 +247,6 @@
             return val.toString();
         }
 
-        // Fungsi Chroma Key HD Ultra Bersih Asli
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
