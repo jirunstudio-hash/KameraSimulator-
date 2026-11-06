@@ -15,8 +15,8 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
-        /* AREA ATAS: HOST & KOTAK 1 - 8 (PERSIS FOTO TIKTOK LIVE) */
-        .live-layout { display: flex; gap: 8px; width: 100%; max-width: 400px; z-index: 10; align-items: stretch; }
+        /* AREA ATAS: HOST & KOTAK 1 - 8 (PERSIS FOTO) */
+        .live-layout { display: flex; gap: 8px; width: 100%; max-width: 400px; z-index: 10; align-items: stretch; position: relative; }
 
         .host-box { 
             flex: 1; height: auto; min-height: 380px; background: #16161c; border-radius: 12px; overflow: hidden; 
@@ -28,7 +28,7 @@
         .host-placeholder { color: #555; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
         /* BADGE HOST EMAS KHAS TIKTOK */
-        .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 10; }
+        .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 25; }
         .gold-host-badge { 
             background: linear-gradient(135deg, #e5a93c 0%, #d48b17 100%); 
             color: #fff; font-size: 0.55rem; font-weight: 800; padding: 2px 7px; 
@@ -37,8 +37,8 @@
 
         .host-bottom-pill { 
             position: absolute; bottom: 8px; left: 8px; max-width: calc(100% - 16px);
-            background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(6px); 
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 10px; z-index: 10; 
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(6px); 
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 4px 10px; z-index: 25; 
         }
         .host-bottom-text { font-size: 0.55rem; color: #fff; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -53,33 +53,38 @@
         }
         
         .slot-box.active-media { border: 1.5px solid #666666 !important; }
-        .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 3; border: 2px solid rgba(255, 255, 255, 0.2); }
+        
+        /* FOTO PROFIL TETAP JELAS */
+        .slot-circle-img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; display: none; position: absolute; z-index: 20; border: 2px solid rgba(255, 255, 255, 0.25); }
 
         /* ICON & TEKS PERMINTAAN */
-        .slot-icon { color: #666; font-size: 1rem; margin-bottom: 2px; font-weight: 800; z-index: 2; }
-        .slot-req { color: #888; font-size: 0.5rem; font-weight: 600; letter-spacing: 0.2px; z-index: 2; }
+        .slot-icon { color: #666; font-size: 1rem; margin-bottom: 2px; font-weight: 800; z-index: 20; }
+        .slot-req { color: #888; font-size: 0.5rem; font-weight: 600; letter-spacing: 0.2px; z-index: 20; }
 
+        /* BADGE KOIN TETAP MUNCUL JELAS DI DEPAN */
         .slot-coin-badge { 
             position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 1.5px 5px; 
-            border-radius: 10px; z-index: 6; border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); padding: 1.5px 5px; 
+            border-radius: 10px; z-index: 25; border: 1px solid rgba(255,255,255,0.15);
         }
         .blue-star-circle { width: 11px; height: 11px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .star-icon-svg { width: 7px; height: 7px; fill: #fff; }
         .coin-count { font-size: 0.48rem; color: #fff; font-weight: 700; }
 
+        /* NAMA PILL TETAP MUNCUL JELAS DI DEPAN */
         .slot-name-pill { 
             position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 26px);
-            display: flex; align-items: center; gap: 2px; z-index: 5; 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
+            display: flex; align-items: center; gap: 2px; z-index: 25; 
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
         }
         .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; flex-shrink: 0; }
         
+        /* MIC TETAP MUNCUL JELAS DI DEPAN */
         .mic-container { 
-            position: absolute; bottom: 4px; right: 4px; z-index: 5;
+            position: absolute; bottom: 4px; right: 4px; z-index: 25;
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); border-radius: 4px;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); border-radius: 4px;
         }
         .mic-icon-svg { width: 9px; height: 9px; fill: #fff; }
         .mic-mute-line { 
@@ -87,19 +92,19 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        /* ===== AREA VIDEO GIFT: MELAYANG DI ATAS KOTAK TAPI KOTAK TETAP TEMBUS TERLIHAT ===== */
+        /* ===== VIDEO DI DEPAN KOTAK TAPI KOTAK TETAP JELAS TERLIHAT ===== */
         .gift-overlay { 
             position: absolute; 
             bottom: 0; 
             left: 0; 
             width: 100%; 
-            height: 72%; /* Menjangkau naik ke atas kotak komal & host */
-            z-index: 35; /* Di atas kotak secara layer */
+            height: 65%; /* Menjangkau area kotak bawah dan host */
+            z-index: 15; /* Di atas latar kotak, tapi di bawah teks/avatar/koin agar kotak tetap sangat jelas */
             pointer-events: none; 
             display: none; 
             background: transparent; 
 
-            /* GRADASI HALUS ANTI-GARIS KAKU */
+            /* GRADASI HALUS AGAR TIDAK ADA GARIS KAKU */
             -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 92%, transparent 100%);
             mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 92%, transparent 100%);
         }
@@ -107,7 +112,7 @@
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* Animasi proporsional & utuh */
+            object-fit: cover;
             object-position: center bottom;
             position: absolute; 
             bottom: 0; 
@@ -161,7 +166,7 @@
             </div>
         </div>
 
-        <!-- AREA VIDEO GIFT (MELAYANG DI ATAS KOTAK, KOTAK DI BELAKANGNYA TETAP KELIHATAN) -->
+        <!-- AREA VIDEO GIFT (DI DEPAN KOTAK, TAPI KOTAK TETAP TERLIHAT JELAS) -->
         <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
@@ -278,7 +283,7 @@
             return val.toString();
         }
 
-        // CHROMA KEY ULTRA BERSIH + TRANSPARANSI TEMBUS PANDANG KE KOTAK
+        // CHROMA KEY ULTRA BERSIH + KOTAK DI BELAKANG TETAP TERLIHAT JELAS
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -296,6 +301,9 @@
             giftVideo.currentTime = 0;
 
             giftVideo.play().then(() => {
+                canvas.style.objectFit = 'cover';
+                canvas.style.objectPosition = 'center bottom';
+
                 function renderFrame() {
                     if (giftVideo.paused || giftVideo.ended) {
                         overlayContainer.style.display = 'none';
@@ -323,13 +331,13 @@
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
-                                // Deteksi Green Screen: ubah background hijau menjadi 100% transparan
+                                // Deteksi Green Screen: ubah background hijau menjadi 100% transparan murni
                                 if (greenDiff > 10 && g > 38) {
                                     let alphaFactor = Math.min(1, (greenDiff - 10) / 22);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } 
                                 
-                                // Spill suppression agar tepi objek bersih tanpa garis hijau
+                                // Bersihkan sisa hijau di tepi objek agar kotak di belakang tetap terlihat natural
                                 if (pixels[i + 3] > 0 && g > (r + b) * 0.54) {
                                     pixels[i + 1] = Math.floor((r + b) / 2);
                                 }
