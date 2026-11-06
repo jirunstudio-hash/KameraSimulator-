@@ -15,73 +15,72 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #222; border-radius: 20px;
         }
 
-        /* ===== AREA KOTAK 1-8 & HOST: DIPASTIKAN SELALU KELIHATAN JELAS (Z-INDEX TINGGI) ===== */
+        /* ===== KOTAK DI BELAKANG (Z-INDEX: 10) TAPI DIBUAT SANGAT JELAS & KONTRAS ===== */
         .live-layout { 
             display: flex; gap: 8px; width: 100%; max-width: 400px; 
-            position: relative; z-index: 60; /* Layer di atas video agar selalu jelas terlihat */
+            position: relative; z-index: 10; /* Di belakang video animasi */
             align-items: stretch; 
         }
 
         .host-box { 
             flex: 1; height: auto; min-height: 380px; background: #16161c; border-radius: 12px; overflow: hidden; 
             position: relative; display: flex; justify-content: center; align-items: center; 
-            border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-            z-index: 60;
+            border: 1.5px solid rgba(255, 255, 255, 0.18); box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
         .host-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
         #hostCameraImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; display: none; }
         .host-placeholder { color: #666; font-size: 0.8rem; font-weight: 500; text-align: center; z-index: 1; }
 
         /* BADGE HOST EMAS */
-        .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 70; }
+        .host-top-pill { position: absolute; top: 8px; left: 8px; z-index: 12; }
         .gold-host-badge { 
             background: linear-gradient(135deg, #e5a93c 0%, #d48b17 100%); 
             color: #fff; font-size: 0.55rem; font-weight: 800; padding: 2px 7px; 
             border-radius: 5px; display: flex; align-items: center; gap: 3px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
         }
 
         .host-bottom-pill { 
             position: absolute; bottom: 8px; left: 8px; max-width: calc(100% - 16px);
-            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); 
-            border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 4px 10px; z-index: 70; 
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); 
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 4px 10px; z-index: 12; 
         }
-        .host-bottom-text { font-size: 0.55rem; color: #fff; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .host-bottom-text { font-size: 0.55rem; color: #fff; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* GRID KOMAL (KOTAK 1 - 8) */
         .komal-grid { 
             width: 190px; display: grid; grid-template-columns: repeat(2, 1fr); 
             grid-template-rows: repeat(4, 1fr); gap: 6px; flex-shrink: 0; 
-            position: relative; z-index: 60; 
+            position: relative; z-index: 10; 
         }
 
         .slot-box { 
             width: 100%; aspect-ratio: 1 / 1; background: #16161c; border-radius: 10px; 
             position: relative; overflow: hidden; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.12); 
-            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            align-items: center; justify-content: center; 
+            border: 1.5px solid rgba(255, 255, 255, 0.16); 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.6);
             transition: border-color 0.2s ease;
-            z-index: 60;
         }
         
-        .slot-box.active-media { border: 1.5px solid #888888 !important; }
+        .slot-box.active-media { border: 1.5px solid #aaaaaa !important; }
         
-        /* FOTO PROFIL KOTAK TETAP MENYALA TERANG */
+        /* FOTO PROFIL KOTAK */
         .slot-circle-img { 
             width: 55px; height: 55px; border-radius: 50%; object-fit: cover; 
-            display: none; position: absolute; z-index: 65; border: 2px solid rgba(255, 255, 255, 0.4); 
+            display: none; position: absolute; z-index: 5; border: 2px solid rgba(255, 255, 255, 0.45); 
             box-shadow: 0 2px 8px rgba(0,0,0,0.7);
         }
 
         /* ICON & TEKS PERMINTAAN */
-        .slot-icon { color: #888; font-size: 1rem; margin-bottom: 2px; font-weight: 800; z-index: 65; }
-        .slot-req { color: #aaa; font-size: 0.5rem; font-weight: 600; letter-spacing: 0.2px; z-index: 65; }
+        .slot-icon { color: #aaa; font-size: 1rem; margin-bottom: 2px; font-weight: 800; z-index: 3; }
+        .slot-req { color: #bbb; font-size: 0.5rem; font-weight: 700; letter-spacing: 0.2px; z-index: 3; }
 
-        /* BADGE KOIN BIRU SELALU TERANG DI DEPAN */
+        /* BADGE KOIN BIRU */
         .slot-coin-badge { 
             position: absolute; top: 4px; left: 4px; display: flex; align-items: center; gap: 3px; 
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); padding: 1.5px 5px; 
-            border-radius: 10px; z-index: 70; border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 10px; z-index: 6; border: 1px solid rgba(255,255,255,0.3);
             box-shadow: 0 2px 6px rgba(0,0,0,0.6);
         }
         .blue-star-circle { width: 11px; height: 11px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
@@ -91,20 +90,20 @@
         /* NAMA PILL DENGAN PLUS (+) */
         .slot-name-pill { 
             position: absolute; bottom: 4px; left: 4px; max-width: calc(100% - 26px);
-            display: flex; align-items: center; gap: 2px; z-index: 70; 
+            display: flex; align-items: center; gap: 2px; z-index: 6; 
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.25);
             box-shadow: 0 2px 6px rgba(0,0,0,0.6);
         }
-        .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .slot-name-text { color: #fff; font-size: 0.45rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .slot-plus-icon { color: #fff; font-size: 0.5rem; font-weight: 900; flex-shrink: 0; }
         
         /* MIC */
         .mic-container { 
-            position: absolute; bottom: 4px; right: 4px; z-index: 70;
+            position: absolute; bottom: 4px; right: 4px; z-index: 6;
             width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; 
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.25);
         }
         .mic-icon-svg { width: 9px; height: 9px; fill: #fff; }
         .mic-mute-line { 
@@ -112,14 +111,14 @@
             background-color: #ff3b30; transform: rotate(-45deg); display: block; 
         }
 
-        /* ===== VIDEO ANIMASI GIFT: AMBIL PENUH UTUH (LAYER PAS DI AREA LIVE) ===== */
+        /* ===== VIDEO ANIMASI: DI PALING DEPAN (Z-INDEX: 50) ===== */
         .gift-overlay { 
             position: absolute; 
             top: 0; 
             left: 0; 
             width: 100%; 
-            height: 100%; /* Mengambil SELURUH video secara utuh */
-            z-index: 20;  /* Berada di bawah kotak agar kotak tetap kelihatan sangat jelas */
+            height: 100%; /* Ambil penuh seluruh layar */
+            z-index: 50;  /* VIDEO DI DEPAN KOTAK */
             pointer-events: none; 
             display: none; 
             background: transparent; 
@@ -128,7 +127,7 @@
         #giftCanvas { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* Mengambil seluruh video tanpa terpotong */
+            object-fit: contain; /* Mengambil seluruh video utuh */
             object-position: center bottom;
             position: absolute; 
             top: 0; 
@@ -140,7 +139,7 @@
 <body>
 
     <div class="phone-screen" id="displayContainer">
-        <!-- AREA ATAS (HOST & KOTAK 1 - 8 TETAP TERANG & JELAS TERLIHAT) -->
+        <!-- AREA ATAS (KOTAK 1 - 8 & HOST BERADA DI BELAKANG VIDEO) -->
         <div class="live-layout">
             <div class="host-box" id="hostBox">
                 <div class="host-top-pill"><span class="gold-host-badge">Host</span></div>
@@ -182,7 +181,7 @@
             </div>
         </div>
 
-        <!-- AREA VIDEO GIFT (AMBIL PENUH, BACKGROUND BENING TOTAL) -->
+        <!-- AREA VIDEO GIFT (DI DEPAN KOTAK, TAPI AREA NON-KARAKTER BENING KRISTAL) -->
         <div class="gift-overlay" id="giftOverlayContainer">
             <video id="giftVideo" crossorigin="anonymous" playsinline></video>
             <canvas id="giftCanvas"></canvas>
@@ -299,7 +298,7 @@
             return val.toString();
         }
 
-        // CHROMA KEY MAKSIMAL (BACKGROUND HIJAU HILANG TOTAL & KOTAK TETAP MENYALA TERANG)
+        // CHROMA KEY MAKSIMAL: VIDEO DI DEPAN, KOTAK DI BELAKANG TETAP TEMBUS TERANG
         function playGiftVideo(src) {
             const overlayContainer = document.getElementById('giftOverlayContainer');
             const giftVideo = document.getElementById('giftVideo');
@@ -320,6 +319,7 @@
                 function renderFrame() {
                     if (giftVideo.paused || giftVideo.ended) {
                         overlayContainer.style.display = 'none';
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
                         return;
                     }
                     if (giftVideo.videoWidth > 0 && giftVideo.videoHeight > 0) {
@@ -330,6 +330,8 @@
                             ctx.imageSmoothingQuality = 'high';
                         }
 
+                        // Bersihkan canvas agar tidak ada bayangan gelap yang menutupi kotak di belakang
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(giftVideo, 0, 0, canvas.width, canvas.height);
 
                         try {
@@ -344,14 +346,14 @@
                                 let maxRB = Math.max(r, b);
                                 let greenDiff = g - maxRB;
 
-                                // Deteksi Green Screen: ubah background hijau menjadi 100% transparan murni
-                                if (greenDiff > 10 && g > 38) {
-                                    let alphaFactor = Math.min(1, (greenDiff - 10) / 22);
+                                // Hilangkan warna hijau secara mutlak agar kotak di belakangnya tembus pandang 100%
+                                if (greenDiff > 8 && g > 35) {
+                                    let alphaFactor = Math.min(1, (greenDiff - 8) / 20);
                                     pixels[i + 3] = Math.floor((1 - alphaFactor) * 255);
                                 } 
                                 
-                                // Spill suppression agar tepi objek bersih tanpa garis hijau
-                                if (pixels[i + 3] > 0 && g > (r + b) * 0.54) {
+                                // Bersihkan warna tepi hijau agar karakter gift terlihat menyatu di depan kotak
+                                if (pixels[i + 3] > 0 && g > (r + b) * 0.52) {
                                     pixels[i + 1] = Math.floor((r + b) / 2);
                                 }
                             }
