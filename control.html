@@ -1,269 +1,196 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Live - Control Panel</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #121216; color: #fff; padding: 20px; max-width: 600px; margin: 0 auto; }
-        h2 { font-size: 1.2rem; margin-bottom: 15px; color: #00f2fe; }
-        h3 { font-size: 1rem; margin-bottom: 10px; color: #fff; }
-        .card { background: #1e1e24; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 8px 12px; background: #2a2a32; border: 1px solid #444; color: #fff; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; }
-        input[type="file"] { padding: 5px; cursor: pointer; }
-        button { background: #007aff; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; margin-right: 5px; margin-top: 5px; }
-        button:hover { opacity: 0.9; }
-        button.danger { background: #ff3b30; }
-        
-        /* Style untuk Kotak Deteksi Target Otomatis */
-        .top-target-input-row { position: relative; }
-        .top-target-spinner {
-            display: none; position: absolute; right: 11px; top: 12px; width: 15px; height: 15px;
-            border: 2px solid #444; border-top-color: #fe2c55; border-radius: 50%;
-            animation: spin .7s linear infinite;
-        }
-        .top-target-spinner.show { display: block; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .top-target-status { display: none; margin-top: -5px; margin-bottom: 8px; font-size: 11px; color: #fe2c55; }
-        
-        .target-preview-box {
-            display: none; align-items: center; gap: 12px; background: #2a2a32;
-            padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #444;
-        }
-        .target-preview-box.show { display: flex; }
-        .target-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #444; }
-        .target-info div { font-size: 0.85rem; }
-        .target-name { font-weight: bold; color: #fff; }
-        .target-username { font-size: 0.75rem; color: #aaa; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Live Control Panel</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#101014;color:white;font-family:Arial,sans-serif}
+.container{max-width:500px;margin:auto}
+h2{text-align:center}
+.card{background:#1b1b23;padding:18px;border-radius:14px;margin-bottom:15px}
+button{width:100%;padding:13px;border:0;border-radius:8px;background:#2563eb;color:white;font-weight:bold;margin-top:10px;cursor:pointer}
+button.red{background:#dc2626}
+button.green{background:#16a34a}
+button:disabled{opacity:.5}
+video{width:100%;background:#000;border-radius:10px;margin-top:10px}
+.status{font-size:13px;color:#aaa;margin-top:10px}
+input{width:100%;padding:11px;margin-top:8px;border:0;border-radius:7px;background:#292932;color:white}
+</style>
 </head>
 <body>
+<div class="container">
+<h2>TikTok Live Control Panel</h2>
 
-    <h2>TikTok Live Control Panel</h2>
+<div class="card">
+<h3>📷 Kamera Host</h3>
+<p>Aktifkan kamera untuk menampilkan video secara realtime di Display Studio.</p>
+<video id="preview" autoplay muted playsinline></video>
+<button class="green" id="start">AKTIFKAN KAMERA</button>
+<button class="red" id="stop" disabled>MATIKAN KAMERA</button>
+<div class="status" id="cameraStatus">Kamera belum aktif.</div>
+</div>
 
-    <div class="card">
-        <label>Nama Host</label>
-        <input type="text" id="hostNameInput" placeholder="Contoh: Faz Gading">
-        <label>File Video Host (MP4 - Auto Play)</label>
-        <input type="file" id="hostVideoFile" accept="video/mp4">
-        <button onclick="updateHost()">Terapkan Host</button>
-    </div>
+<div class="card">
+<h3>👤 Nama Host</h3>
+<input id="hostName" placeholder="Masukkan nama host">
+<button onclick="updateHostName()">UPDATE NAMA HOST</button>
+</div>
 
-    <div class="card">
-        <h3>Pengaturan Slot (1 - 8)</h3>
-        <label>Pilih Slot:</label>
-        <select id="selectSlotNum">
-            <option value="1">Slot 1</option>
-            <option value="2">Slot 2</option>
-            <option value="3">Slot 3</option>
-            <option value="4">Slot 4</option>
-            <option value="5">Slot 5</option>
-            <option value="6">Slot 6</option>
-            <option value="7">Slot 7</option>
-            <option value="8">Slot 8</option>
-        </select>
+<div class="card">
+<h3>🖥️ Display Studio</h3>
+<button onclick="window.open('display.html','display')">BUKA DISPLAY</button>
+</div>
+</div>
 
-        <label>Username TikTok Target (Auto Deteksi Foto & Nama)</label>
-        <div class="top-target-input-row">
-            <input type="text" id="targetUsernameInput" placeholder="Contoh: budiofficial" autocomplete="off">
-            <span id="topTargetSpinner" class="top-target-spinner"></span>
-        </div>
-        <div id="targetStatus" class="top-target-status">Mencari data akun...</div>
+<script>
+const channel = new BroadcastChannel('tiktok_live_channel');
 
-        <!-- Preview Hasil Deteksi Otomatis -->
-        <div id="targetCard" class="target-preview-box">
-            <img id="targetAvatar" class="target-avatar" alt="Foto Profil">
-            <div class="target-info">
-                <div id="targetName" class="target-name">-</div>
-                <div id="targetUsername" class="target-username">-</div>
-            </div>
-        </div>
+let stream = null;
+let peer = null;
+let displayChannel = null;
 
-        <label>Target / Poin Awal</label>
-        <input type="number" id="poinInput" value="0">
+const preview = document.getElementById('preview');
+const startBtn = document.getElementById('start');
+const stopBtn = document.getElementById('stop');
+const statusText = document.getElementById('cameraStatus');
 
-        <button onclick="applySlot()">Simpan / Update Slot</button>
-        <button class="danger" onclick="clearSlotTotal()">Kosongkan Slot</button>
-    </div>
+function send(type, data = {}) {
+    channel.postMessage({type, ...data});
+}
 
-    <div class="card">
-        <h3>Kirim Gift & Tambah Poin</h3>
-        <label>Pilih Slot Tujuan Poin:</label>
-        <select id="giftTargetSlot">
-            <option value="1">Slot 1</option>
-            <option value="2">Slot 2</option>
-            <option value="3">Slot 3</option>
-            <option value="4">Slot 4</option>
-            <option value="5">Slot 5</option>
-            <option value="6">Slot 6</option>
-            <option value="7">Slot 7</option>
-            <option value="8">Slot 8</option>
-        </select>
+function updateHostName() {
+    const label = document.getElementById('hostName').value.trim();
+    send('UPDATE_HOST_LABEL', {label: label || 'Nama'});
+}
 
-        <label>File Video Gift (Green Screen/Transparan MP4)</label>
-        <input type="file" id="giftVideoFile" accept="video/mp4">
+function waitForDisplay() {
+    return new Promise(resolve => {
+        if (peer) peer.close();
 
-        <label>Tambah Poin (Default 44999)</label>
-        <input type="number" id="giftIncrement" value="44999">
-        <button onclick="triggerGift()">Putar Gift & Tambah Poin</button>
-    </div>
-
-    <script>
-        const channel = new BroadcastChannel('tiktok_live_channel');
-
-        const input = document.getElementById("targetUsernameInput");
-        const spinner = document.getElementById("topTargetSpinner");
-        const statusBox = document.getElementById("targetStatus");
-        const card = document.getElementById("targetCard");
-
-        let detectedAvatarUrl = "";
-        let targetTimer = null;
-        const cache = {};
-
-        function cleanName(raw) {
-            if(!raw) return '';
-            let val = raw.trim();
-            if(val.startsWith('@')) val = val.substring(1);
-            return val;
-        }
-
-        function extractUser(raw) {
-            if(!raw || typeof raw !== "object") throw new Error("API response empty");
-            if(raw.code !== undefined && Number(raw.code) !== 0) throw new Error(raw.msg || "API error");
-            const root = raw.data || raw;
-            const info = root.userInfo || root.user_info || {};
-            const user = info.user || root.user || info || root;
-            const username = String(pick(user, ["uniqueId", "unique_id", "username"], "")).replace(/^@/, "").trim();
-            if(!username) throw new Error("Username tidak ditemukan");
-            return {
-                username,
-                name: String(pick(user, ["nickname", "name", "display_name"], username)),
-                avatar: String(pick(user, ["avatarLarger", "avatarMedium", "avatarThumb", "avatar", "avatar_url"], ""))
-            };
-        }
-
-        function pick(obj, keys, fb) {
-            for(const k of keys) {
-                let v = obj;
-                for(const p of k.split(".")) v = v?.[p];
-                if(v !== undefined && v !== null && v !== "") return v;
-            }
-            return fb;
-        }
-
-        async function requestTikwmUser(username) {
-            const res = await fetch("https://www.tikwm.com/api/user/info/", {
-                method: "POST", cache: "no-store",
-                headers: {"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", "Accept": "application/json"},
-                body: "unique_id=" + encodeURIComponent(username)
-            });
-            if(!res.ok) throw new Error("HTTP " + res.status);
-            const json = await res.json();
-            return extractUser(json);
-        }
-
-        function renderTarget(data) {
-            const av = document.getElementById("targetAvatar");
-            av.src = data.avatar || "";
-            av.onerror = function() { this.src = ""; };
-
-            document.getElementById("targetName").textContent = data.name || data.username;
-            document.getElementById("targetUsername").textContent = "@" + data.username;
-            
-            card.classList.add("show");
-            statusBox.style.display = "none";
-            spinner.classList.remove("show");
-
-            detectedAvatarUrl = data.avatar || "";
-        }
-
-        async function fetchTarget(username) {
-            if(!username) return;
-            if(cache[username]) {
-                renderTarget(cache[username]);
-                return;
-            }
-
-            spinner.classList.add("show");
-            statusBox.textContent = "Mendeteksi akun TikTok...";
-            statusBox.style.display = "block";
-
-            try {
-                const data = await requestTikwmUser(username);
-                cache[username] = data;
-                renderTarget(data);
-            } catch(e) {
-                spinner.classList.remove("show");
-                statusBox.textContent = "Akun tidak ditemukan / Gagal mendeteksi";
-                card.classList.remove("show");
-            }
-        }
-
-        input.addEventListener("input", function() {
-            clearTimeout(targetTimer);
-            const cleanVal = cleanName(input.value);
-            if(!cleanVal) {
-                card.classList.remove("show");
-                statusBox.style.display = "none";
-                spinner.classList.remove("show");
-                return;
-            }
-            targetTimer = setTimeout(() => {
-                fetchTarget(cleanVal);
-            }, 600);
+        peer = new RTCPeerConnection({
+            iceServers: [{urls:'stun:stun.l.google.com:19302'}]
         });
 
-        function updateHost() {
-            const label = document.getElementById('hostNameInput').value;
-            const fileInput = document.getElementById('hostVideoFile');
-            if(label) channel.postMessage({ type: 'UPDATE_HOST_LABEL', label });
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    channel.postMessage({ type: 'UPDATE_HOST_VIDEO', src: e.target.result });
-                };
-                reader.readAsDataURL(fileInput.files[0]);
+        peer.onicecandidate = event => {
+            if (event.candidate) {
+                displayChannel.postMessage({
+                    type:'ICE',
+                    candidate:event.candidate
+                });
             }
-        }
+        };
 
-        function applySlot() {
-            const slotNum = document.getElementById('selectSlotNum').value;
-            const nameInput = cleanName(document.getElementById('targetUsernameInput').value);
-            const initialPoin = parseInt(document.getElementById('poinInput').value) || 0;
+        peer.onconnectionstatechange = () => {
+            statusText.textContent = 'Status koneksi: ' + peer.connectionState;
+        };
 
-            if (!nameInput) return;
+        stream.getTracks().forEach(track => {
+            peer.addTrack(track, stream);
+        });
 
-            channel.postMessage({
-                type: 'UPDATE_SLOT',
-                slotNum, 
-                nameInput, 
-                initialPoin, 
-                profileImg: detectedAvatarUrl, 
-                action: 'update'
-            });
-        }
+        displayChannel.onmessage = async event => {
+            const data = event.data;
 
-        function clearSlotTotal() {
-            const slotNum = document.getElementById('selectSlotNum').value;
-            channel.postMessage({ type: 'UPDATE_SLOT', slotNum, action: 'clear_slot' });
-        }
+            try {
+                if (data.type === 'READY') {
+                    const offer = await peer.createOffer();
+                    await peer.setLocalDescription(offer);
 
-        function triggerGift() {
-            const targetSlot = document.getElementById('giftTargetSlot').value;
-            const fileInput = document.getElementById('giftVideoFile');
-            const increment = parseInt(document.getElementById('giftIncrement').value) || 44999;
-            
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    channel.postMessage({ type: 'PLAY_GIFT', targetSlot, src: e.target.result, increment });
-                };
-                reader.readAsDataURL(fileInput.files[0]);
+                    displayChannel.postMessage({
+                        type:'OFFER',
+                        description:peer.localDescription
+                    });
+                }
+
+                if (data.type === 'ANSWER') {
+                    await peer.setRemoteDescription(data.description);
+                }
+
+                if (data.type === 'ICE' && data.candidate) {
+                    await peer.addIceCandidate(data.candidate);
+                }
+            } catch(error) {
+                console.error(error);
             }
+        };
+
+        resolve();
+    });
+}
+
+startBtn.onclick = async () => {
+    try {
+        startBtn.disabled = true;
+        statusText.textContent = 'Meminta izin kamera...';
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+            throw new Error('Kamera membutuhkan HTTPS atau localhost.');
         }
-    </script>
+
+        stream = await navigator.mediaDevices.getUserMedia({
+            video:{
+                width:{ideal:1920},
+                height:{ideal:1080},
+                frameRate:{ideal:30}
+            },
+            audio:false
+        });
+
+        preview.srcObject = stream;
+
+        displayChannel = new BroadcastChannel('tiktok_camera_connection');
+
+        await waitForDisplay();
+
+        startBtn.style.display = 'none';
+        stopBtn.disabled = false;
+        statusText.textContent = 'Kamera aktif. Menunggu Display terhubung...';
+
+        stream.getVideoTracks()[0].addEventListener('ended', stopCamera);
+
+    } catch(error) {
+        console.error(error);
+        alert('Kamera gagal diaktifkan: ' + error.message);
+        startBtn.disabled = false;
+        statusText.textContent = 'Kamera tidak aktif.';
+    }
+};
+
+function stopCamera() {
+    if(stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+
+    if(peer) {
+        peer.close();
+        peer = null;
+    }
+
+    if(displayChannel) {
+        displayChannel.postMessage({type:'STOP'});
+        displayChannel.close();
+        displayChannel = null;
+    }
+
+    preview.srcObject = null;
+
+    startBtn.style.display = 'block';
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+
+    statusText.textContent = 'Kamera telah dimatikan.';
+}
+
+stopBtn.onclick = stopCamera;
+
+window.addEventListener('pagehide', () => {
+    if(stream) stream.getTracks().forEach(track => track.stop());
+    if(peer) peer.close();
+});
+</script>
 </body>
 </html>
