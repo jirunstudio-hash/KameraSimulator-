@@ -1,196 +1,221 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TikTok Live Control Panel</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;padding:20px;background:#101014;color:white;font-family:Arial,sans-serif}
-.container{max-width:500px;margin:auto}
-h2{text-align:center}
-.card{background:#1b1b23;padding:18px;border-radius:14px;margin-bottom:15px}
-button{width:100%;padding:13px;border:0;border-radius:8px;background:#2563eb;color:white;font-weight:bold;margin-top:10px;cursor:pointer}
-button.red{background:#dc2626}
-button.green{background:#16a34a}
-button:disabled{opacity:.5}
-video{width:100%;background:#000;border-radius:10px;margin-top:10px}
-.status{font-size:13px;color:#aaa;margin-top:10px}
-input{width:100%;padding:11px;margin-top:8px;border:0;border-radius:7px;background:#292932;color:white}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - TikTok Live</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #181820; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 600px; width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: #22222e; border: 1px solid #333; border-radius: 12px; padding: 15px; }
+        h3 { margin-bottom: 12px; font-size: 1rem; color: #4facfe; border-bottom: 1px solid #333; padding-bottom: 6px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        label { font-size: 0.8rem; color: #aaa; }
+        input, select, button { padding: 8px 12px; border-radius: 6px; border: 1px solid #444; background: #2d2d3a; color: #fff; outline: none; }
+        button { cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button.btn-green { background: #10b981; border: none; }
+        button.btn-green:hover { background: #059669; }
+        button.btn-red { background: #ef4444; border: none; }
+        button.btn-red:hover { background: #dc2626; }
+        button.btn-blue { background: #2563eb; border: none; }
+        button.btn-blue:hover { background: #1d4ed8; }
+        
+        .preview-box { width: 100%; height: 180px; background: #000; border-radius: 8px; overflow: hidden; margin-top: 10px; position: relative; display: flex; align-items: center; justify-content: center; }
+        video#camPreview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .badge-off { background: #555; }
+        .badge-on { background: #10b981; }
+    </style>
 </head>
 <body>
-<div class="container">
-<h2>TikTok Live Control Panel</h2>
 
-<div class="card">
-<h3>📷 Kamera Host</h3>
-<p>Aktifkan kamera untuk menampilkan video secara realtime di Display Studio.</p>
-<video id="preview" autoplay muted playsinline></video>
-<button class="green" id="start">AKTIFKAN KAMERA</button>
-<button class="red" id="stop" disabled>MATIKAN KAMERA</button>
-<div class="status" id="cameraStatus">Kamera belum aktif.</div>
-</div>
+    <div class="container">
+        <!-- KONTROL KAMERA HOST SECARA RESMI & AMAN -->
+        <div class="card">
+            <h3>Kamera Host Realtime (WebRTC)</h3>
+            <p style="font-size: 0.75rem; color: #aaa; margin-bottom: 10px;">
+                Permintaan izin kamera browser hanya akan aktif di sini demi menjaga layar display tetap bersih.
+            </p>
+            <div style="display:flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                <span>Status:</span>
+                <span id="camStatus" class="status-badge badge-off">Mati</span>
+            </div>
 
-<div class="card">
-<h3>👤 Nama Host</h3>
-<input id="hostName" placeholder="Masukkan nama host">
-<button onclick="updateHostName()">UPDATE NAMA HOST</button>
-</div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btnStartCam" class="btn-green" onclick="startCamera()">Aktifkan Izin & Kamera</button>
+                <button id="btnStopCam" class="btn-red" onclick="stopCamera()" style="display:none;">Matikan Kamera</button>
+            </div>
 
-<div class="card">
-<h3>🖥️ Display Studio</h3>
-<button onclick="window.open('display.html','display')">BUKA DISPLAY</button>
-</div>
-</div>
+            <div class="preview-box">
+                <span id="previewText" style="color: #666; font-size: 0.8rem;">Preview Kamera Panel</span>
+                <video id="camPreview" autoplay playsinline muted></video>
+            </div>
+        </div>
 
-<script>
-const channel = new BroadcastChannel('tiktok_live_channel');
+        <!-- KONTROL NAMA HOST -->
+        <div class="card">
+            <h3>Pengaturan Label Host</h3>
+            <div class="form-group">
+                <label>Nama Host Display:</label>
+                <input type="text" id="hostNameInput" value="Faz Gading" placeholder="Ketik nama host...">
+            </div>
+            <button class="btn-blue" onclick="updateHostName()">Perbarui Nama Host</button>
+        </div>
 
-let stream = null;
-let peer = null;
-let displayChannel = null;
+        <!-- KONTROL KOMAL SLOT -->
+        <div class="card">
+            <h3>Kelola Slot Komal (1 - 8)</h3>
+            <div class="form-group">
+                <label>Pilih Slot:</label>
+                <select id="slotSelect">
+                    <option value="1">Slot 1</option>
+                    <option value="2">Slot 2</option>
+                    <option value="3">Slot 3</option>
+                    <option value="4">Slot 4</option>
+                    <option value="5">Slot 5</option>
+                    <option value="6">Slot 6</option>
+                    <option value="7">Slot 7</option>
+                    <option value="8">Slot 8</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nama Akun Komal:</label>
+                <input type="text" id="komalNameInput" placeholder="Contoh: User123">
+            </div>
+            <div class="form-group">
+                <label>Koin Awal:</label>
+                <input type="number" id="komalCoinInput" value="0">
+            </div>
+            <div class="form-group">
+                <label>URL Gambar Profil (Opsional):</label>
+                <input type="text" id="komalImgInput" placeholder="https://...">
+            </div>
+            <div style="display:flex; gap: 8px;">
+                <button class="btn-green" style="flex:1;" onclick="updateSlot()">Set Slot</button>
+                <button class="btn-red" style="flex:1;" onclick="clearSlot()">Kosongkan Slot</button>
+            </div>
+        </div>
+    </div>
 
-const preview = document.getElementById('preview');
-const startBtn = document.getElementById('start');
-const stopBtn = document.getElementById('stop');
-const statusText = document.getElementById('cameraStatus');
+    <script>
+        const channel = new BroadcastChannel('tiktok_live_channel');
+        let localStream = null;
+        let peerConnection = null;
 
-function send(type, data = {}) {
-    channel.postMessage({type, ...data});
-}
-
-function updateHostName() {
-    const label = document.getElementById('hostName').value.trim();
-    send('UPDATE_HOST_LABEL', {label: label || 'Nama'});
-}
-
-function waitForDisplay() {
-    return new Promise(resolve => {
-        if (peer) peer.close();
-
-        peer = new RTCPeerConnection({
-            iceServers: [{urls:'stun:stun.l.google.com:19302'}]
-        });
-
-        peer.onicecandidate = event => {
-            if (event.candidate) {
-                displayChannel.postMessage({
-                    type:'ICE',
-                    candidate:event.candidate
-                });
-            }
-        };
-
-        peer.onconnectionstatechange = () => {
-            statusText.textContent = 'Status koneksi: ' + peer.connectionState;
-        };
-
-        stream.getTracks().forEach(track => {
-            peer.addTrack(track, stream);
-        });
-
-        displayChannel.onmessage = async event => {
+        // RESPON DARI DISPLAY UNTUK WEBRTC
+        channel.onmessage = async (event) => {
             const data = event.data;
-
-            try {
-                if (data.type === 'READY') {
-                    const offer = await peer.createOffer();
-                    await peer.setLocalDescription(offer);
-
-                    displayChannel.postMessage({
-                        type:'OFFER',
-                        description:peer.localDescription
-                    });
-                }
-
-                if (data.type === 'ANSWER') {
-                    await peer.setRemoteDescription(data.description);
-                }
-
-                if (data.type === 'ICE' && data.candidate) {
-                    await peer.addIceCandidate(data.candidate);
-                }
-            } catch(error) {
-                console.error(error);
+            if (data.type === 'WEBRTC_ANSWER' && peerConnection) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+            } else if (data.type === 'WEBRTC_ICE' && peerConnection && data.candidate) {
+                try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                } catch(e) {}
             }
         };
 
-        resolve();
-    });
-}
+        // 1. MENGAKTIFKAN KAMERA DAN IZIN BROWSER
+        async function startCamera() {
+            try {
+                // Izin kamera browser diminta secara legal dan aman di sini
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: false
+                });
 
-startBtn.onclick = async () => {
-    try {
-        startBtn.disabled = true;
-        statusText.textContent = 'Meminta izin kamera...';
+                // Menampilkan preview di Control Panel
+                const previewVideo = document.getElementById('camPreview');
+                previewVideo.srcObject = localStream;
+                previewVideo.style.display = 'block';
+                document.getElementById('previewText').style.display = 'none';
 
-        if (!navigator.mediaDevices?.getUserMedia) {
-            throw new Error('Kamera membutuhkan HTTPS atau localhost.');
+                document.getElementById('camStatus').className = 'status-badge badge-on';
+                document.getElementById('camStatus').innerText = 'Aktif Realtime';
+                document.getElementById('btnStartCam').style.display = 'none';
+                document.getElementById('btnStopCam').style.display = 'inline-block';
+
+                // Hubungkan ke Display menggunakan WebRTC lokal antar tab
+                connectToDisplay();
+
+            } catch (err) {
+                alert("Izin kamera ditolak atau perangkat kamera tidak ditemukan: " + err.message);
+            }
         }
 
-        stream = await navigator.mediaDevices.getUserMedia({
-            video:{
-                width:{ideal:1920},
-                height:{ideal:1080},
-                frameRate:{ideal:30}
-            },
-            audio:false
-        });
+        async function connectToDisplay() {
+            if (peerConnection) peerConnection.close();
+            peerConnection = new RTCPeerConnection();
 
-        preview.srcObject = stream;
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
 
-        displayChannel = new BroadcastChannel('tiktok_camera_connection');
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    channel.postMessage({ type: 'WEBRTC_ICE', candidate: event.candidate });
+                }
+            };
 
-        await waitForDisplay();
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
 
-        startBtn.style.display = 'none';
-        stopBtn.disabled = false;
-        statusText.textContent = 'Kamera aktif. Menunggu Display terhubung...';
+            // Kirim tawaran stream ke tab display.html
+            channel.postMessage({ type: 'WEBRTC_OFFER', sdp: offer });
+        }
 
-        stream.getVideoTracks()[0].addEventListener('ended', stopCamera);
+        // 2. MEMATIKAN KAMERA
+        function stopCamera() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
 
-    } catch(error) {
-        console.error(error);
-        alert('Kamera gagal diaktifkan: ' + error.message);
-        startBtn.disabled = false;
-        statusText.textContent = 'Kamera tidak aktif.';
-    }
-};
+            document.getElementById('camPreview').srcObject = null;
+            document.getElementById('camPreview').style.display = 'none';
+            document.getElementById('previewText').style.display = 'block';
 
-function stopCamera() {
-    if(stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
+            document.getElementById('camStatus').className = 'status-badge badge-off';
+            document.getElementById('camStatus').innerText = 'Mati';
+            document.getElementById('btnStartCam').style.display = 'inline-block';
+            document.getElementById('btnStopCam').style.display = 'none';
 
-    if(peer) {
-        peer.close();
-        peer = null;
-    }
+            channel.postMessage({ type: 'STOP_HOST_CAMERA' });
+        }
 
-    if(displayChannel) {
-        displayChannel.postMessage({type:'STOP'});
-        displayChannel.close();
-        displayChannel = null;
-    }
+        // 3. FUNGSI PANEL LAINNYA
+        function updateHostName() {
+            const name = document.getElementById('hostNameInput').value;
+            channel.postMessage({ type: 'UPDATE_HOST_LABEL', label: name });
+        }
 
-    preview.srcObject = null;
+        function updateSlot() {
+            const slotNum = parseInt(document.getElementById('slotSelect').value);
+            const name = document.getElementById('komalNameInput').value;
+            const coin = parseInt(document.getElementById('komalCoinInput').value) || 0;
+            const img = document.getElementById('komalImgInput').value;
 
-    startBtn.style.display = 'block';
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
+            channel.postMessage({
+                type: 'UPDATE_SLOT',
+                slotNum: slotNum,
+                nameInput: name,
+                initialPoin: coin,
+                profileImg: img || null
+            });
+        }
 
-    statusText.textContent = 'Kamera telah dimatikan.';
-}
-
-stopBtn.onclick = stopCamera;
-
-window.addEventListener('pagehide', () => {
-    if(stream) stream.getTracks().forEach(track => track.stop());
-    if(peer) peer.close();
-});
-</script>
+        function clearSlot() {
+            const slotNum = parseInt(document.getElementById('slotSelect').value);
+            channel.postMessage({
+                type: 'UPDATE_SLOT',
+                slotNum: slotNum,
+                action: 'clear_slot'
+            });
+        }
+    </script>
 </body>
 </html>
